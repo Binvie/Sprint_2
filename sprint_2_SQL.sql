@@ -77,7 +77,6 @@ create table carts (
     payment_date datetime,
     is_deleted boolean default 0,
     customer_id int,
-
 	foreign key (customer_id) references customers (id)
 );
 
@@ -86,9 +85,9 @@ create table cart_detail (
     quantity int ,
     payment_date datetime,
     is_deleted boolean default 0,
-    customer_id int,
+    cart_id int,
     product_id int,
-	foreign key (customer_id) references customers (id),
+	foreign key (cart_id) references carts (id),
 	foreign key (product_id) references products (id)
 );
 
