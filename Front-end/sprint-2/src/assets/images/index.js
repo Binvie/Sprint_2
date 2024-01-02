@@ -15,9 +15,11 @@ import prod5 from "./carousel/product-5.jpg";
 import prod6 from "./carousel/product-6.jpg";
 import prod7 from "./carousel/product-7.jpg";
 import prod8 from "./carousel/product-8.jpg";
+import loginPic from "./carousel/login.png";
+import login1 from "./carousel/login1.jpg";
 
 export {
-    pic1,prod1,prod2,prod3,prod4,prod5,prod6,prod7,prod8,
+    pic1,prod1,prod2,prod3,prod4,prod5,prod6,prod7,prod8,loginPic, login1,
     pic2,
     pic3,
     icon1,
