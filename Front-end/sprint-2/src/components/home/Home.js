@@ -43,13 +43,13 @@ function Home() {
                                             <Link
                                                 className="btn btn-primary rounded-pill py-sm-3 px-sm-5"
                                                 to="/products">
-                                                Products
+                                                Sản phẩm
                                             </Link>
                                             <Link
                                                 href=""
                                                 className="btn btn-secondary rounded-pill py-sm-3 px-sm-5 ms-3"
-                                                to="/products">
-                                                Services
+                                                to="/detail">
+                                                Chi tiết sản phẩm
                                             </Link>
                                         </div>
                                     </div>
