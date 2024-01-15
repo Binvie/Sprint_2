@@ -1,5 +1,6 @@
 package com.example.sprint2backend.service;
 
+import com.example.sprint2backend.dto.ICartDto;
 import com.example.sprint2backend.model.Cart;
 import com.example.sprint2backend.repository.ICartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,5 +33,10 @@ public class CartService implements ICartService {
     @Override
     public void remove(Integer id) {
 
+    }
+
+    @Override
+    public List<ICartDto> getCart(int userId) {
+        cartRepository.getCart(userId);
     }
 }

@@ -15,8 +15,8 @@ function Footer() {
                                 F<span className="text-secondary">oo</span>vie
                             </h1>
                             <p>
-                                Diam dolor diam ipsum sit. Aliqu diam amet diam et eos. Clita erat
-                                ipsum et lorem et sit, sed stet lorem sit clita
+                                Tự nhiên Tinh Khiết, Mua Sắm An Toàn: Nơi bạn tìm thấy những sản phẩm hữu cơ chất lượng cao
+                                , mang lại hương vị tươi ngon và đảm bảo sức khỏe cho gia đình bạn!
                             </p>
                             <div className="d-flex pt-2">
                                 <a
@@ -74,7 +74,9 @@ function Footer() {
                         </div>
                         <div className="col-lg-3 col-md-6">
                             <h4 className="text-light mb-4">Newsletter</h4>
-                            <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
+                            <p>Tận hưởng ưu đãi độc quyền và cập nhật thông tin về thế giới hữu cơ qua bản tin hàng tháng của chúng tôi.
+                                Khám phá những xu hướng mới, nhận mã giảm giá đặc biệt và học cách làm cho cuộc sống của bạn thêm phần tự nhiên
+                                và khỏe mạnh!</p>
                             {/*<div className="position-relative mx-auto" style={{maxWidth: 400}}>*/}
                             {/*    <input*/}
                             {/*        className="form-control bg-transparent w-100 py-3 ps-4 pe-5"*/}
@@ -108,7 +110,6 @@ function Footer() {
             {/* Back to Top */}
             <a
                 href="#"
-                // className="btn btn-lg btn-lg-square"
                 className="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"
             >
                 <i className="far fa-arrow-alt-circle-down fa-2x fa-rotate-180" style={{margin: "-35% -100%"}}>

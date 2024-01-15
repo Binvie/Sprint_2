@@ -1,15 +1,53 @@
-import React from 'react';
+import React, {useState} from 'react';
 import "../css/products.min.css"
 import {
     pic1, pic2, pic3, icon1, icon2, icon3, blog1, blog2, blog3,
-    prod1, prod2, prod3, prod4, prod5, prod6, prod7, prod8, login1 ,loginPic
+    prod1, prod2, prod3, prod4, prod5, prod6, prod7, prod8, login1, loginPic
 } from "../../assets/images";
 import Footer from "./Footer";
 import Header from "./Header";
 import "../css/shop.min.css"
+import {Link, useNavigate} from "react-router-dom";
+import * as typeService from "../../services/FruitTypeService"
 
 
 function Products() {
+    const navigate = useNavigate();
+    const [typeList, setTypeList] = useState([])
+    const [originList, setOriginList] = useState([])
+    const [productList, setProductList] = useState([])
+
+    const [typeId, setTypeId] = useState()
+    const [originId, setOriginId] = useState()
+    const [sortId, setSortId] = useState()
+
+    const getProductListList = async () => {
+        try {
+            const res = await typeService.getListProductsPageService()
+            setTypeList(res)
+        } catch (e) {
+            alert("Error typeList " + e)
+        }
+    }
+    const getTypeList = async () => {
+        try {
+            const res = await typeService.getTypeListService()
+            setTypeList(res)
+        } catch (e) {
+            alert("Error typeList " + e)
+        }
+    }
+
+    const getOriginList = async () => {
+        try {
+            const res = await typeService.getOriginListService()
+            setOriginList(res)
+        } catch (e) {
+            alert("Error typeList " + e)
+        }
+    }
+
+
     return (
         <>
             <Header/>
@@ -18,10 +56,7 @@ function Products() {
                 <h1 className="text-center text-white display-6">Shop</h1>
                 <ol className="breadcrumb justify-content-center mb-0">
                     <li className="breadcrumb-item">
-                        <a href="/">Home</a>
-                    </li>
-                    <li className="breadcrumb-item">
-                        <a href="#">Pages</a>
+                        <Link to="/">Home</Link>
                     </li>
                     <li className="breadcrumb-item active text-white">Shop</li>
                 </ol>
@@ -43,8 +78,8 @@ function Products() {
                                             aria-describedby="search-icon-1"
                                         />
                                         <span id="search-icon-1" className="input-group-text p-3">
-                  <i className="fa fa-search"/>
-                </span>
+                                          <i className="fa fa-search"/>
+                                        </span>
                                     </div>
                                 </div>
                                 <div className="col-6"/>
@@ -310,7 +345,7 @@ function Products() {
                                                     }}
                                                 >
                                                     <h3 className="text-secondary fw-bold">
-                                                       Organic <br/>Fresh <br/> Fruits
+                                                        Organic <br/>Fresh <br/> Fruits
                                                     </h3>
                                                 </div>
                                             </div>

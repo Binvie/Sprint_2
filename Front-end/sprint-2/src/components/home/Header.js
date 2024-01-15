@@ -1,40 +1,45 @@
-import React from 'react';
-import {Link} from "react-router-dom";
+import React, {useEffect, useState} from 'react';
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import * as accountService from "../../services/AccountService"
+import ModalLogout from "../modal/ModalLogout";
+import {Button, Modal} from "react-bootstrap";
+import {toast} from "react-toastify";
 
 function Header() {
+    const location = useLocation();
+    const [user, setUser] = useState(localStorage.getItem("JWT"))
+    const [username, setUsername] = useState("")
+    const [show, setShow] = useState(false);
+    const navigate = useNavigate();
+
+    const getInfo = async () => {
+        const res = await accountService.infoToken()
+        if (res != null) {
+            setUsername(res.sub)
+        }
+    }
+
+    const logOutUser = async () => {
+        await localStorage.removeItem('JWT');
+        navigate("/");
+        toast.success("Đăng xuất thành công!")
+        window.location.href = '/';
+    };
+
+    useEffect(() => {
+        getInfo()
+    }, []);
+
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
     return (
         <>
             <div
                 className="container-fluid fixed-top px-0 wow fadeIn"
                 data-wow-delay="0.1s"
             >
-                <div className="top-bar row gx-0 align-items-center d-none d-lg-flex bg-white">
-                    <div className="col-lg-6 px-5 text-start">
-                        <small>
-                            <i className="fa fa-map-marker-alt me-2"/>
-                            580 Trần Hưng Đạo, Đà Nẵng
-                        </small>
-                        <small className="ms-4">
-                            <i className="fa fa-envelope me-2"/>
-                            thien97.night1@gmail.com
-                        </small>
-                    </div>
-                    <div className="col-lg-6 px-5 text-end">
-                        <small>Follow us:</small>
-                        <a className="text-body ms-3" href="https://www.facebook.com/givemeaname97">
-                            <i className="fab fa-facebook-f"/>
-                        </a>
-                        <a className="text-body ms-3" href="">
-                            <i className="fab fa-twitter"/>
-                        </a>
-                        <a className="text-body ms-3" href="">
-                            <i className="fab fa-linkedin-in"/>
-                        </a>
-                        <a className="text-body ms-3" href="">
-                            <i className="fab fa-instagram"/>
-                        </a>
-                    </div>
-                </div>
                 <nav
                     className="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn bg-white"
                     data-wow-delay="0.1s"
@@ -55,13 +60,10 @@ function Header() {
                     <div className="collapse navbar-collapse" id="navbarCollapse">
                         <div className="navbar-nav ms-auto p-4 p-lg-0">
                             <Link className="nav-item nav-link active" to="/">
-                                Home
-                            </Link>
-                            <Link className="nav-item nav-link" to="/about-us">
-                                About Us
+                                Trang chủ
                             </Link>
                             <Link className="nav-item nav-link" to="/products">
-                                Products
+                                Sản phẩm
                             </Link>
                             {/*<div className="nav-item dropdown">*/}
                             {/*    <a*/}
@@ -94,17 +96,65 @@ function Header() {
                             {/*<a className="btn-sm-square bg-white rounded-circle ms-3" href="">*/}
                             {/*    <small className="fa fa-search text-body"/>*/}
                             {/*</a>*/}
-                            <a className="btn-sm-square bg-white rounded-circle ms-3" href="/cart">
+                            <Link className="btn-sm-square bg-white rounded-circle ms-3" to="/cart"
+                                  style={{
+                                      display: "flex",
+                                      position: "relative",
+                                      // marginTop: "10px",
+                                      fontSize: "200%"
+                                  }}>
                                 <small className="fa fa-shopping-bag text-body"/>
-                            </a>
-                            <a className="btn-sm-square bg-white rounded-circle ms-3" href="/login">
-                                <small className="fa fa-user text-body"/>
-                            </a>
-
+                            </Link>
+                            {!user ? (
+                                <Link className="btn-sm-square bg-white rounded-circle ms-3" to="/login"
+                                      style={{
+                                          display: "flex",
+                                          position: "relative",
+                                          // marginTop: "10px",
+                                          fontSize: "200%"
+                                      }}
+                                >
+                                    <small className="fa fa-user text-body"/>
+                                </Link>
+                            ) : (
+                                <div className="nav-link text-light align-text-bottom d-flex ">
+                                    <p style={{
+                                        margin: "0 10px",
+                                        fontWeight: "500",
+                                        fontSize: "18px",
+                                        color: "black",
+                                        marginTop: "5px"
+                                    }}>{username}
+                                    </p>
+                                    <Button variant="primary sm-3" onClick={handleShow}>
+                                        Log Out
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </nav>
             </div>
+
+            <Modal
+                show={show}
+                onHide={handleClose}
+                backdrop="static"
+                keyboard={false}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title> Đăng xuất</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Bạn có chắc chắn muốn đăng xuất hay không ?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Đóng
+                    </Button>
+                    <Button variant="primary" onClick={logOutUser}>Xác nhận</Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 }

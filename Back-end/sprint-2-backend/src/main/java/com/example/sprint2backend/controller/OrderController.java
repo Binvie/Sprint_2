@@ -1,6 +1,8 @@
 package com.example.sprint2backend.controller;
 
 import com.example.sprint2backend.service.*;
+import com.example.sprint2backend.service.product.IFruitService;
+import com.example.sprint2backend.service.product.IFruitTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;

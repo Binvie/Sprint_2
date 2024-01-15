@@ -4,9 +4,9 @@ import {ToastContainer} from "react-toastify";
 import Home from "./components/home/Home";
 import "react-toastify/dist/ReactToastify.css"
 import "bootstrap/dist/css/bootstrap.min.css"
-import Login from "./components/home/Login";
+import Login from "./components/login/Login";
 import Products from "./components/home/Products";
-import Detail from "./components/home/Detail";
+import Detail from "./components/detail/Detail";
 import Cart from "./components/home/Cart";
 
 function App() {
