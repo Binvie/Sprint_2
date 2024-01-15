@@ -2,13 +2,16 @@ package com.example.sprint2backend.controller;
 
 import com.example.sprint2backend.dto.IFruitsDto;
 import com.example.sprint2backend.model.product.FruitImage;
-import com.example.sprint2backend.model.product.FruitOrigin;
 import com.example.sprint2backend.model.product.Fruits;
 import com.example.sprint2backend.service.*;
 import com.example.sprint2backend.service.product.IFruitImageService;
 import com.example.sprint2backend.service.product.IFruitService;
 import com.example.sprint2backend.service.product.IFruitTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,15 +44,16 @@ public class FruitsController {
     public ResponseEntity<?> getFruitList(@RequestParam(name = "type", defaultValue = "", required = false) String type,
                                           @RequestParam(name = "origin", defaultValue = "", required = false) String origin) {
         List<Fruits> fruits = fruitService.findFruitsByTypeAndOrigin(type, origin);
-        if (fruits != null) {
+        if (!fruits.isEmpty()) {
             return new ResponseEntity<>(fruits, HttpStatus.OK);
         }
         return new ResponseEntity<>("Không tìm thấy dữ liệu", HttpStatus.NOT_FOUND);
     }
+
     @GetMapping("/homeList")
     public ResponseEntity<?> getFruitListHomePage(@RequestParam(name = "type", defaultValue = "", required = false) String type) {
         List<IFruitsDto> fruits = fruitService.findFruitsByFruitTypeHomePage(type);
-        if (fruits != null) {
+        if (!fruits.isEmpty()) {
             return new ResponseEntity<>(fruits, HttpStatus.OK);
         }
         return new ResponseEntity<>("Không tìm thấy dữ liệu", HttpStatus.NOT_FOUND);
@@ -58,8 +62,17 @@ public class FruitsController {
     @GetMapping("/productsList")
     public ResponseEntity<?> getFruitListProductsPage(@RequestParam(name = "type", defaultValue = "", required = false) String type,
                                                       @RequestParam(name = "origin", defaultValue = "", required = false) String origin,
-                                                      @RequestParam(name = "maxPrice", defaultValue = "", required = false) String maxPrice) {
-        List<IFruitsDto> fruits = fruitService.findFruitsByFruitTypeProductsPage(type, origin, maxPrice);
+                                                      @RequestParam(name = "maxPrice", defaultValue = "1500000", required = false) String maxPrice,
+                                                      @RequestParam(name = "page", defaultValue = "0", required = false) int page,
+                                                      @RequestParam(name = "name", defaultValue = "", required = false) String name,
+                                                      @RequestParam(name = "sortPrice", defaultValue = "", required = false) String sortPrice) {
+        Pageable pageable = PageRequest.of(page, 9);
+        if (sortPrice.equals("1")) {
+            pageable = PageRequest.of(page, 9, Sort.by("fruitsPrice").ascending());
+        } else if (sortPrice.equals("2")) {
+            pageable = PageRequest.of(page, 9, Sort.by("fruitsPrice").descending());
+        } else pageable = PageRequest.of(page, 9);
+        Page<IFruitsDto> fruits = fruitService.findFruitsByFruitTypeProductsPage(type, origin, maxPrice, pageable, name);
         if (fruits != null) {
             return new ResponseEntity<>(fruits, HttpStatus.OK);
         }

@@ -1,0 +1,16 @@
+#pagination .btn{
+    width: unset;
+    width: 31px;
+    border: unset;
+    border: 1px solid darkgrey;
+}
+
+#pagination .btn.active{
+    border: 1px solid black;
+    transform: scale(1.1);
+}
+
+#pagination .btn:hover{
+    border: 1px solid black;
+    transform: scale(1.1);
+}

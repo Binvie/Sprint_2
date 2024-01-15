@@ -254,7 +254,7 @@ function Home() {
                                 {typeList.length !== 0 ? (typeList.map(typeProduct => {
                                     return(
                                     <>
-                                        <li className="nav-item me-2">
+                                        <li className="nav-item me-2" key={typeProduct.id}>
                                             <button
                                                 className="btn btn-outline-primary border-2"
                                                 data-bs-toggle="pill"
@@ -276,7 +276,7 @@ function Home() {
                                 {list8.length !== 0 ? (list8.map(products => {
                                         return (
                                             <>
-                                                <div
+                                                <div key={products.id}
                                                     className="col-xl-3 col-lg-4 col-md-6 wow fadeInUp"
                                                     data-wow-delay="0.1s"
                                                 >

@@ -37,6 +37,6 @@ public class CartService implements ICartService {
 
     @Override
     public List<ICartDto> getCart(int userId) {
-        cartRepository.getCart(userId);
+       return cartRepository.getCart(userId);
     }
 }

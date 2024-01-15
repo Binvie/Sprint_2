@@ -16,28 +16,26 @@ public interface IFruitRepository extends JpaRepository<Fruits, Integer> {
 
     @Query(value = " SELECT DISTINCT f.id AS idFruits, f.name AS fruitsName, " +
             "              f.price AS fruitsPrice, f.description ," +
-            "              ( SELECT i.image " +
-            "              FROM fruit_image as i " +
-            "              WHERE i.fruits_id = f.id " +
-            "              ORDER BY i.id LIMIT 1) AS fruitImage " +
+            "              MIN(i.image)  AS fruitImage " +
             "              FROM fruits f " +
             "              JOIN fruit_image as i ON f.id = i.fruits_id " +
             "              WHERE f.fruit_type_id like :type " +
-            "              LIMIT 8 ", nativeQuery = true)
+            "              GROUP BY f.id " +
+            "              LIMIT 8 " , nativeQuery = true)
     List<IFruitsDto> findFruitsByFruitTypeHomePage(@Param("type") String type);
 
     @Query(value = "SELECT DISTINCT f.id AS idFruits, f.name AS  fruitsName, " +
             "                f.price AS fruitsPrice, f.description, " +
-            "                (SELECT i.image " +
-            "                 FROM fruit_image as i " +
-            "                 WHERE i.fruits_id = f.id " +
-            "                 ORDER BY i.id LIMIT 1) AS firstImage " +
-            "       FROM fruits f\n" +
+            "                MIN(i.image)  AS fruitImage " +
+            "       FROM fruits f " +
             "       JOIN fruit_image as i ON f.id = i.fruits_id " +
-            "       WHERE f.fruit_type_id like :type and f.fruit_origin_id like :origin " +
-            "       AND f.price < :maxPrice " , nativeQuery = true)
-    List<IFruitsDto> findFruitsByFruitTypeProductsPage(@Param("type") String type, @Param("origin")String origin,
-                                                       @Param("maxPrice") String maxPrice);
+            "       WHERE f.fruit_type_id like :typeId AND f.fruit_origin_id like :origin " +
+            "       AND f.name like :searchName " +
+            "       AND f.price < :maxPrice " +
+            "       GROUP BY f.id " , nativeQuery = true)
+    Page<IFruitsDto> findFruitsByFruitTypeProductsPage(@Param("typeId") String type, @Param("origin")String origin,
+                                                       @Param("maxPrice") String maxPrice, Pageable pageable,
+                                                       @Param("searchName") String name);
 
 
 }

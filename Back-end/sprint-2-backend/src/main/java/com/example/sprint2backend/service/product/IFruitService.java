@@ -12,6 +12,6 @@ import java.util.List;
 public interface IFruitService extends IGenerate<Fruits> {
     List<Fruits> findFruitsByTypeAndOrigin(String type, String origin);
     List<IFruitsDto> findFruitsByFruitTypeHomePage(String type);
-    List<IFruitsDto> findFruitsByFruitTypeProductsPage(String type, String origin, String maxPrice);
+    Page<IFruitsDto> findFruitsByFruitTypeProductsPage(String type, String origin, String maxPrice, Pageable pageable, String name);
 
 }

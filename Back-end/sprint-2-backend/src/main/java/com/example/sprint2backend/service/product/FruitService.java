@@ -47,8 +47,8 @@ public class FruitService implements IFruitService {
     }
 
     @Override
-    public List<IFruitsDto> findFruitsByFruitTypeProductsPage(String type, String origin, String maxPrice) {
-        return fruitRepository.findFruitsByFruitTypeProductsPage("%" + type + "%", "%" + origin + "%", "%" + maxPrice + "%");
+    public Page<IFruitsDto> findFruitsByFruitTypeProductsPage(String type, String origin, String maxPrice, Pageable pageable, String name) {
+        return fruitRepository.findFruitsByFruitTypeProductsPage("%" + type + "%", "%" + origin + "%",  maxPrice, pageable, "%" + name + "%");
     }
 
 }

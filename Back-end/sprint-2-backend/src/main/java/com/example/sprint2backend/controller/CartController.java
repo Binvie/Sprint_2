@@ -1,12 +1,17 @@
 package com.example.sprint2backend.controller;
 
+import com.example.sprint2backend.dto.ICartDto;
+import com.example.sprint2backend.dto.RespondContentDto;
 import com.example.sprint2backend.service.*;
 import com.example.sprint2backend.service.account.IAccountsService;
 import com.example.sprint2backend.service.product.IFruitService;
 import com.example.sprint2backend.service.product.IFruitTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin("*")
@@ -31,9 +36,15 @@ public class CartController {
     private IAccountsService accountsService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getCart(@PathVariable int userId ) {
-        
-        return void;
+    public ResponseEntity<?> getCart(@PathVariable int userId) {
+        List<ICartDto> cartDtoList = cartService.getCart(userId);
+        if (cartDtoList.isEmpty()) {
+            RespondContentDto responseContentDto = new RespondContentDto();
+            responseContentDto.setCode(400);
+            responseContentDto.setMessage("Không tìm thấy giỏ hàng");
+            return new ResponseEntity<>(responseContentDto, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(cartDtoList, HttpStatus.OK);
     }
 
 }

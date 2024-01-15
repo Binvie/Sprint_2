@@ -11,6 +11,8 @@ function Header() {
     const [username, setUsername] = useState("")
     const [show, setShow] = useState(false);
     const navigate = useNavigate();
+    const [active, setActive] = useState(false)
+
 
     const getInfo = async () => {
         const res = await accountService.infoToken()
@@ -59,10 +61,16 @@ function Header() {
                     </button>
                     <div className="collapse navbar-collapse" id="navbarCollapse">
                         <div className="navbar-nav ms-auto p-4 p-lg-0">
-                            <Link className="nav-item nav-link active" to="/">
+                            <Link
+                                className={`nav-item nav-link ${location.pathname === '/' ? 'active' : ''}`}
+                                to="/"
+                            >
                                 Trang chủ
                             </Link>
-                            <Link className="nav-item nav-link" to="/products">
+                            <Link
+                                className={`nav-item nav-link ${location.pathname === '/products' ? 'active' : ''}`}
+                                to="/products"
+                            >
                                 Sản phẩm
                             </Link>
                             {/*<div className="nav-item dropdown">*/}
@@ -88,9 +96,9 @@ function Header() {
                             {/*        </a>*/}
                             {/*    </div>*/}
                             {/*</div>*/}
-                            <Link className="nav-item nav-link" to="/contact">
-                                Contact Us
-                            </Link>
+                            {/*<Link className="nav-item nav-link" to="/contact">*/}
+                            {/*    Contact Us*/}
+                            {/*</Link>*/}
                         </div>
                         <div className="d-none d-lg-flex ms-2">
                             {/*<a className="btn-sm-square bg-white rounded-circle ms-3" href="">*/}

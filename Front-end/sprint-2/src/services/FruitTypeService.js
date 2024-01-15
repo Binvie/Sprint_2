@@ -10,9 +10,8 @@ export const getListHomePageService = async (id) => {
     return res.data;
 }
 
-export const getListProductsPageService = async (typeId, originId) => {
-    const res = await axios.get(URL_FRUITS + `/productsList?type=${typeId}&origin=${originId}`)
-    return res.data;
+export const getListProductsPageService = async (typeId, originId, maxPrice, page, name, sortPrice) => {
+    return await axios.get(`http://localhost:8080/api/fruits/productsList?type=${typeId}&origin=${originId}&maxPrice=${maxPrice}&page=${page}&name=${name}&sortPrice=${sortPrice}`);
 }
 
 export const getTypeListService = async () => {
