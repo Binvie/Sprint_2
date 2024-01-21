@@ -1,22 +1,146 @@
-import React from 'react';
-import "../css/products.min.css"
-import {
-    pic1, pic2, pic3, icon1, icon2, icon3, blog1, blog2, blog3,
-    prod1, prod2, prod3, prod4, prod5, prod6, prod7, prod8, login1 ,loginPic
-} from "../../assets/images";
+import React, { useEffect, useState} from 'react';
+import {login1, prod1, prod2, prod3, prod5, prod6, prod7} from "../../assets/images";
 import Footer from "../home/Footer";
 import Header from "../home/Header";
-import "../css/shop.min.css"
+import "../backUpCss/shop.min.css"
+import {useNavigate, useParams} from "react-router-dom";
+import * as typeService from "../../services/FruitTypeService";
+import * as accountService from "../../services/AccountService";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Slider from "react-slick";
+import {toast} from "react-toastify";
+import {addToCart} from "../redux/actions/CartActions";
+import {useDispatch} from "react-redux";
+
 function Detail() {
+    const {id} = useParams();
+    const navigate = useNavigate();
+    const [fruits, setFruits] = useState({});
+    const [images, setImages] = useState([]);
+    const [selectedImage, setSelectedImage] = useState("");
+    const [typeList, setTypeList] = useState([])
+    const [typeId, setTypeId] = useState("")
+    const dispatch = useDispatch();
+    const [existingUser, setExistingUser] = useState({})
+    const [userId, setUserId] = useState(0)
+    const [quantity, setQuantity] = useState(1);
+    const quantityMinus = () => {
+        if (quantity > 1) {
+            setQuantity(quantity - 1);
+        } else {
+            toast.warn("Số lượng sản phẩm không hợp lệ");
+        }
+    }
+
+    const quantityAddition = () => {
+        if (existingUser) {
+            if (quantity <= 9) {
+                setQuantity(quantity + 1);
+                if (quantity === 9) {
+                    toast.info("Nếu muốn đặt số lượng lớn, vui lòng liên hệ QTV để được hỗ trợ!");
+                }
+            }
+        } else {
+            toast.success("Vui lòng đăng nhập!");
+            navigate("/login");
+        }
+
+    }
+
+    const handleAddProductToCart = async (productId) => {
+        const user = JSON.parse(localStorage.getItem("user"));
+        console.log(user)
+        const username = user.username
+        console.log(username)
+        if (user) {
+            setExistingUser(user)
+            setUserId(user.id)
+            dispatch(addToCart(userId, productId, quantity));
+            toast.success("Thêm vào giỏ hàng thành công!");
+        }else {
+            // navigate("/login")
+            toast.warn("Bạn phải đăng nhập để có thể mua hàng")
+        }
+    }
+
+    const backToLastPage = () => {
+        navigate(-1);
+    }
+    const getDetailFruitPage = async () => {
+        try {
+            const res = await typeService.getDetailFruits(id);
+            if (res.status === 200) {
+                setFruits(res.data.fruit)
+                setImages(res.data.images)
+                setSelectedImage(res.data.images[0].image)
+            } else {
+                setFruits(null);
+                console.log("lỗi lấy data1")
+            }
+
+        } catch (e) {
+            alert(" Error " + e)
+        }
+    }
+
+    const getTypeList = async () => {
+        try {
+            const res = await typeService.getTypeListService()
+            setTypeList(res)
+        } catch (e) {
+            alert("Error typeList " + e)
+        }
+    }
+    const splitTextByDots = (text) => {
+        try {
+            if (text !== undefined) {
+                let lines = text.split(".");
+                return lines.map((line, index) => (
+                    <p key={index}>{line}</p>
+                ));
+            }
+        } catch (e) {
+            alert(e)
+        }
+    }
+
+    function truncateText(text, maxLength) {
+        if (text !== undefined) {
+            if (text.length <= maxLength) {
+                return text;
+            }
+            return text.slice(0, maxLength) + '...';
+        }
+        // Nếu độ dài vượt quá giới hạn, rút gọn và thêm dấu '...'
+    }
+
+    useEffect(() => {
+        getTypeList()
+        getDetailFruitPage()
+    }, [id, quantity]);
+
+    if (!fruits) {
+        return null;
+    }
+    const settings = {
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1
+    };
+    if (!fruits) return null;
+
     return (
         <>
             <Header/>
             {/* Single Page Header start */}
             <div className="container-fluid page-header py-5">
-                <h1 className="text-center text-white display-6">Shop Detail</h1>
+                <h1 className="text-center text-white display-6">Chi tiết sản phẩm</h1>
                 <ol className="breadcrumb justify-content-center mb-0">
                     <li className="breadcrumb-item">
-                        <a href="#">Home</a>
+                        <a href="/">Trang chủ</a>
                     </li>
                     <li className="breadcrumb-item active text-white">Shop Detail</li>
                 </ol>
@@ -32,7 +156,7 @@ function Detail() {
                                     <div className="border rounded">
                                         <a href="#">
                                             <img
-                                                src={prod2}
+                                                src={fruits.fruitImage}
                                                 className="img-fluid rounded"
                                                 alt="Image"
                                             />
@@ -40,49 +164,41 @@ function Detail() {
                                     </div>
                                 </div>
                                 <div className="col-lg-6">
-                                    <h4 className="fw-bold mb-3">Brocoli</h4>
-                                    <p className="mb-3">Category: Vegetables</p>
-                                    <h5 className="fw-bold mb-3">3,35 $</h5>
-                                    <div className="d-flex mb-4">
-                                        <i className="fa fa-star text-secondary"/>
-                                        <i className="fa fa-star text-secondary"/>
-                                        <i className="fa fa-star text-secondary"/>
-                                        <i className="fa fa-star text-secondary"/>
-                                        <i className="fa fa-star"/>
-                                    </div>
-                                    <p className="mb-4">
-                                        The generated Lorem Ipsum is therefore always free from
-                                        repetition injected humour, or non-characteristic words etc.
-                                    </p>
-                                    <p className="mb-4">
-                                        Susp endisse ultricies nisi vel quam suscipit. Sabertooth
-                                        peacock flounder; chain pickerel hatchetfish, pencilfish
-                                        snailfish
-                                    </p>
+                                    <h3 className="fw-bold mb-3">{fruits.fruitsName}</h3>
+                                    {/*<p className="mb-3"> Loại sản phẩm: {typeList[fruits.typeId - 1].name} </p>*/}
+                                    {/*<p className="mb-3"> Loại sản phẩm: {fruits.typeId - 1} </p>*/}
+                                    <p className="mb-3"> Số lượng còn lại: {fruits.inventory} sản phẩm. </p>
+                                    <p className="mb-3"> Mô tả sản phẩm: {truncateText(fruits.description, 100)}</p>
+                                    <h5 className="fw-bold mb-3">Giá tiền : {new Intl.NumberFormat('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND'
+                                    }).format(fruits.fruitsPrice)} </h5>
                                     <div className="input-group quantity mb-5" style={{width: 100}}>
                                         <div className="input-group-btn">
-                                            <button className="btn btn-sm btn-minus rounded-circle bg-light border">
+                                            <button className="btn btn-sm btn-minus rounded-circle bg-light border"
+                                                    onClick={quantityMinus}>
                                                 <i className="fa fa-minus"/>
                                             </button>
                                         </div>
                                         <input
                                             type="text"
                                             className="form-control form-control-sm text-center border-0"
-                                            defaultValue={1}
+                                            value={quantity} readOnly={true}
                                         />
                                         <div className="input-group-btn">
-                                            <button className="btn btn-sm btn-plus rounded-circle bg-light border">
+                                            <button className="btn btn-sm btn-plus rounded-circle bg-light border"
+                                                    onClick={quantityAddition}>
                                                 <i className="fa fa-plus"/>
                                             </button>
                                         </div>
                                     </div>
-                                    <a
-                                        href="#"
+                                    <button
                                         className="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary"
+                                        onClick={() => handleAddProductToCart(fruits.idfruits)}
                                     >
                                         <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
                                         cart
-                                    </a>
+                                    </button>
                                 </div>
                                 <div className="col-lg-12">
                                     <nav>
@@ -99,18 +215,6 @@ function Detail() {
                                             >
                                                 Description
                                             </button>
-                                            <button
-                                                className="nav-link border-white border-bottom-0"
-                                                type="button"
-                                                role="tab"
-                                                id="nav-mission-tab"
-                                                data-bs-toggle="tab"
-                                                data-bs-target="#nav-mission"
-                                                aria-controls="nav-mission"
-                                                aria-selected="false"
-                                            >
-                                                Reviews
-                                            </button>
                                         </div>
                                     </nav>
                                     <div className="tab-content mb-5">
@@ -120,78 +224,7 @@ function Detail() {
                                             role="tabpanel"
                                             aria-labelledby="nav-about-tab"
                                         >
-                                            <p>
-                                                The generated Lorem Ipsum is therefore always free from
-                                                repetition injected humour, or non-characteristic words etc.
-                                                Susp endisse ultricies nisi vel quam suscipit{" "}
-                                            </p>
-                                            <p>
-                                                Sabertooth peacock flounder; chain pickerel hatchetfish,
-                                                pencilfish snailfish filefish Antarctic icefish goldeye
-                                                aholehole trumpetfish pilot fish airbreathing catfish,
-                                                electric ray sweeper.
-                                            </p>
-                                            <div className="px-2">
-                                                <div className="row g-4">
-                                                    <div className="col-6">
-                                                        <div
-                                                            className="row bg-light align-items-center text-center justify-content-center py-2">
-                                                            <div className="col-6">
-                                                                <p className="mb-0">Weight</p>
-                                                            </div>
-                                                            <div className="col-6">
-                                                                <p className="mb-0">1 kg</p>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            className="row text-center align-items-center justify-content-center py-2">
-                                                            <div className="col-6">
-                                                                <p className="mb-0">Country of Origin</p>
-                                                            </div>
-                                                            <div className="col-6">
-                                                                <p className="mb-0">Agro Farm</p>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            className="row bg-light text-center align-items-center justify-content-center py-2">
-                                                            <div className="col-6">
-                                                                <p className="mb-0">Quality</p>
-                                                            </div>
-                                                            <div className="col-6">
-                                                                <p className="mb-0">Organic</p>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            className="row text-center align-items-center justify-content-center py-2">
-                                                            <div className="col-6">
-                                                                <p className="mb-0">Сheck</p>
-                                                            </div>
-                                                            <div className="col-6">
-                                                                <p className="mb-0">Healthy</p>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            className="row bg-light text-center align-items-center justify-content-center py-2">
-                                                            <div className="col-6">
-                                                                <p className="mb-0">Min Weight</p>
-                                                            </div>
-                                                            <div className="col-6">
-                                                                <p className="mb-0">250 Kg</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="tab-pane" id="nav-vision" role="tabpanel">
-                                            <p className="text-dark">
-                                                Tempor erat elitr rebum at clita. Diam dolor diam ipsum et
-                                                tempor sit. Aliqu diam amet diam et eos labore. 3
-                                            </p>
-                                            <p className="mb-0">
-                                                Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et
-                                                eos labore. Clita erat ipsum et lorem et sit
-                                            </p>
+                                            {splitTextByDots(fruits.description)}
                                         </div>
                                     </div>
                                 </div>
@@ -201,174 +234,22 @@ function Detail() {
                             <div className="row g-4 fruite">
                                 <div className="col-lg-12">
                                     <div className="mb-4">
-                                        <h4>Categories</h4>
-                                        <ul className="list-unstyled fruite-categorie">
-                                            <li>
-                                                <div className="d-flex justify-content-between fruite-name">
-                                                    <a href="#">
-                                                        <i className="fas fa-apple-alt me-2"/>
-                                                        Apples
-                                                    </a>
-                                                    <span>(3)</span>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div className="d-flex justify-content-between fruite-name">
-                                                    <a href="#">
-                                                        <i className="fas fa-apple-alt me-2"/>
-                                                        Oranges
-                                                    </a>
-                                                    <span>(5)</span>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div className="d-flex justify-content-between fruite-name">
-                                                    <a href="#">
-                                                        <i className="fas fa-apple-alt me-2"/>
-                                                        Strawbery
-                                                    </a>
-                                                    <span>(2)</span>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div className="d-flex justify-content-between fruite-name">
-                                                    <a href="#">
-                                                        <i className="fas fa-apple-alt me-2"/>
-                                                        Banana
-                                                    </a>
-                                                    <span>(8)</span>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div className="d-flex justify-content-between fruite-name">
-                                                    <a href="#">
-                                                        <i className="fas fa-apple-alt me-2"/>
-                                                        Pumpkin
-                                                    </a>
-                                                    <span>(5)</span>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div className="col-lg-12">
-                                    <h4 className="mb-4">Featured products</h4>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                        <div className="rounded" style={{width: 100, height: 100}}>
-                                            <img
-                                                src={prod1}
-                                                className="img-fluid rounded"
-                                                alt="Image"
-                                            />
-                                        </div>
-                                        <div>
-                                            <h6 className="mb-2">Big Banana</h6>
-                                            <div className="d-flex mb-2">
-                                                <h5 className="fw-bold me-2">2.99 $</h5>
-                                                <h5 className="text-danger text-decoration-line-through">
-                                                    4.11 $
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                        <div className="rounded" style={{width: 100, height: 100}}>
-                                            <img
-                                                src={prod2}
-                                                className="img-fluid rounded"
-                                                alt=""
-                                            />
-                                        </div>
-                                        <div>
-                                            <h6 className="mb-2">Big Banana</h6>
-                                            <div className="d-flex mb-2">
-                                                <h5 className="fw-bold me-2">2.99 $</h5>
-                                                <h5 className="text-danger text-decoration-line-through">
-                                                    4.11 $
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                        <div className="rounded" style={{width: 100, height: 100}}>
-                                            <img
-                                                src={prod3}
-                                                className="img-fluid rounded"
-                                                alt=""
-                                            />
-                                        </div>
-                                        <div>
-                                            <h6 className="mb-2">Big Banana</h6>
-                                            <div className="d-flex mb-2">
-                                                <h5 className="fw-bold me-2">2.99 $</h5>
-                                                <h5 className="text-danger text-decoration-line-through">
-                                                    4.11 $
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                        <div
-                                            className="rounded me-4"
-                                            style={{width: 100, height: 100}}
-                                        >
-                                            <img
-                                                src={prod5}
-                                                className="img-fluid rounded"
-                                                alt=""
-                                            />
-                                        </div>
-                                        <div>
-                                            <h6 className="mb-2">Big Banana</h6>
-                                            <div className="d-flex mb-2">
-                                                <h5 className="fw-bold me-2">2.99 $</h5>
-                                                <h5 className="text-danger text-decoration-line-through">
-                                                    4.11 $
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                        <div
-                                            className="rounded me-4"
-                                            style={{width: 100, height: 100}}
-                                        >
-                                            <img
-                                                src={prod6}
-                                                className="img-fluid rounded"
-                                                alt=""
-                                            />
-                                        </div>
-                                        <div>
-                                            <h6 className="mb-2">Big Banana</h6>
-                                            <div className="d-flex mb-2">
-                                                <h5 className="fw-bold me-2">2.99 $</h5>
-                                                <h5 className="text-danger text-decoration-line-through">
-                                                    4.11 $
-                                                </h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center justify-content-start">
-                                        <div
-                                            className="rounded me-4"
-                                            style={{width: 100, height: 100}}
-                                        >
-                                            <img
-                                                src={prod7}
-                                                className="img-fluid rounded"
-                                                alt=""
-                                            />
-                                        </div>
-                                        <div>
-                                            <h6 className="mb-2">Big Banana</h6>
-                                            <div className="d-flex mb-2">
-                                                <h5 className="fw-bold me-2">2.99 $</h5>
-                                                <h5 className="text-danger text-decoration-line-through">
-                                                    4.11 $
-                                                </h5>
-                                            </div>
-                                        </div>
+                                        <h4>Danh mục</h4>
+                                        {typeList.length !== 0 ? (
+                                            typeList.map(type => {
+                                                return (
+                                                    <>
+                                                        <ul className="list-unstyled fruite-categorie"
+                                                            key={type.id}>
+                                                            <li value={type.id} role="button"
+                                                                onClick={event => setTypeId(event.target.value)}>
+                                                                <i className={`${type.id === typeId ? 'text-warning' : 'text-primary'} fas fa-apple-alt me-2 `}/>{type.name}
+                                                            </li>
+                                                        </ul>
+                                                    </>
+                                                )
+                                            })
+                                        ) : (<p>Không có dữ liệu.</p>)}
                                     </div>
                                 </div>
                                 <div className="col-lg-12">
@@ -386,7 +267,7 @@ function Detail() {
                                                 transform: "translateY(-50%)"
                                             }}
                                         >
-                                            <h3 className="text-secondary fw-bold">
+                                            <h3 className="text-warning fw-bold">
                                                 Fresh <br/> Fruits <br/> Banner
                                             </h3>
                                         </div>
@@ -395,267 +276,267 @@ function Detail() {
                             </div>
                         </div>
                     </div>
-                    <h1 className="fw-bold mb-0">Related products</h1>
-                    <div className="vesitable">
-                        <div className="owl-carousel vegetable-carousel justify-content-center">
-                            <div className="border border-primary rounded position-relative vesitable-item">
-                                <div className="vesitable-img">
-                                    <img
-                                        src="img/vegetable-item-6.jpg"
-                                        className="img-fluid w-100 rounded-top"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    className="text-white bg-primary px-3 py-1 rounded position-absolute"
-                                    style={{top: 10, right: 10}}
-                                >
-                                    Vegetable
-                                </div>
-                                <div className="p-4 pb-0 rounded-bottom">
-                                    <h4>Parsely</h4>
-                                    <p>
-                                        Lorem ipsum dolor sit amet consectetur adipisicing elit sed do
-                                        eiusmod te incididunt
-                                    </p>
-                                    <div className="d-flex justify-content-between flex-lg-wrap">
-                                        <p className="text-dark fs-5 fw-bold">$4.99 / kg</p>
-                                        <a
-                                            href="#"
-                                            className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"
-                                        >
-                                            <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
-                                            cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-primary rounded position-relative vesitable-item">
-                                <div className="vesitable-img">
-                                    <img
-                                        src="img/vegetable-item-1.jpg"
-                                        className="img-fluid w-100 rounded-top"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    className="text-white bg-primary px-3 py-1 rounded position-absolute"
-                                    style={{top: 10, right: 10}}
-                                >
-                                    Vegetable
-                                </div>
-                                <div className="p-4 pb-0 rounded-bottom">
-                                    <h4>Parsely</h4>
-                                    <p>
-                                        Lorem ipsum dolor sit amet consectetur adipisicing elit sed do
-                                        eiusmod te incididunt
-                                    </p>
-                                    <div className="d-flex justify-content-between flex-lg-wrap">
-                                        <p className="text-dark fs-5 fw-bold">$4.99 / kg</p>
-                                        <a
-                                            href="#"
-                                            className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"
-                                        >
-                                            <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
-                                            cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-primary rounded position-relative vesitable-item">
-                                <div className="vesitable-img">
-                                    <img
-                                        src="img/vegetable-item-3.png"
-                                        className="img-fluid w-100 rounded-top bg-light"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    className="text-white bg-primary px-3 py-1 rounded position-absolute"
-                                    style={{top: 10, right: 10}}
-                                >
-                                    Vegetable
-                                </div>
-                                <div className="p-4 pb-0 rounded-bottom">
-                                    <h4>Banana</h4>
-                                    <p>
-                                        Lorem ipsum dolor sit amet consectetur adipisicing elit sed do
-                                        eiusmod te incididunt
-                                    </p>
-                                    <div className="d-flex justify-content-between flex-lg-wrap">
-                                        <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                        <a
-                                            href="#"
-                                            className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"
-                                        >
-                                            <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
-                                            cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-primary rounded position-relative vesitable-item">
-                                <div className="vesitable-img">
-                                    <img
-                                        src="img/vegetable-item-4.jpg"
-                                        className="img-fluid w-100 rounded-top"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    className="text-white bg-primary px-3 py-1 rounded position-absolute"
-                                    style={{top: 10, right: 10}}
-                                >
-                                    Vegetable
-                                </div>
-                                <div className="p-4 pb-0 rounded-bottom">
-                                    <h4>Bell Papper</h4>
-                                    <p>
-                                        Lorem ipsum dolor sit amet consectetur adipisicing elit sed do
-                                        eiusmod te incididunt
-                                    </p>
-                                    <div className="d-flex justify-content-between flex-lg-wrap">
-                                        <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                        <a
-                                            href="#"
-                                            className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"
-                                        >
-                                            <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
-                                            cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-primary rounded position-relative vesitable-item">
-                                <div className="vesitable-img">
-                                    <img
-                                        src="img/vegetable-item-5.jpg"
-                                        className="img-fluid w-100 rounded-top"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    className="text-white bg-primary px-3 py-1 rounded position-absolute"
-                                    style={{top: 10, right: 10}}
-                                >
-                                    Vegetable
-                                </div>
-                                <div className="p-4 pb-0 rounded-bottom">
-                                    <h4>Potatoes</h4>
-                                    <p>
-                                        Lorem ipsum dolor sit amet consectetur adipisicing elit sed do
-                                        eiusmod te incididunt
-                                    </p>
-                                    <div className="d-flex justify-content-between flex-lg-wrap">
-                                        <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                        <a
-                                            href="#"
-                                            className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"
-                                        >
-                                            <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
-                                            cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-primary rounded position-relative vesitable-item">
-                                <div className="vesitable-img">
-                                    <img
-                                        src="img/vegetable-item-6.jpg"
-                                        className="img-fluid w-100 rounded-top"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    className="text-white bg-primary px-3 py-1 rounded position-absolute"
-                                    style={{top: 10, right: 10}}
-                                >
-                                    Vegetable
-                                </div>
-                                <div className="p-4 pb-0 rounded-bottom">
-                                    <h4>Parsely</h4>
-                                    <p>
-                                        Lorem ipsum dolor sit amet consectetur adipisicing elit sed do
-                                        eiusmod te incididunt
-                                    </p>
-                                    <div className="d-flex justify-content-between flex-lg-wrap">
-                                        <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                        <a
-                                            href="#"
-                                            className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"
-                                        >
-                                            <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
-                                            cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-primary rounded position-relative vesitable-item">
-                                <div className="vesitable-img">
-                                    <img
-                                        src="img/vegetable-item-5.jpg"
-                                        className="img-fluid w-100 rounded-top"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    className="text-white bg-primary px-3 py-1 rounded position-absolute"
-                                    style={{top: 10, right: 10}}
-                                >
-                                    Vegetable
-                                </div>
-                                <div className="p-4 pb-0 rounded-bottom">
-                                    <h4>Potatoes</h4>
-                                    <p>
-                                        Lorem ipsum dolor sit amet consectetur adipisicing elit sed do
-                                        eiusmod te incididunt
-                                    </p>
-                                    <div className="d-flex justify-content-between flex-lg-wrap">
-                                        <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                        <a
-                                            href="#"
-                                            className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"
-                                        >
-                                            <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
-                                            cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border border-primary rounded position-relative vesitable-item">
-                                <div className="vesitable-img">
-                                    <img
-                                        src="img/vegetable-item-6.jpg"
-                                        className="img-fluid w-100 rounded-top"
-                                        alt=""
-                                    />
-                                </div>
-                                <div
-                                    className="text-white bg-primary px-3 py-1 rounded position-absolute"
-                                    style={{top: 10, right: 10}}
-                                >
-                                    Vegetable
-                                </div>
-                                <div className="p-4 pb-0 rounded-bottom">
-                                    <h4>Parsely</h4>
-                                    <p>
-                                        Lorem ipsum dolor sit amet consectetur adipisicing elit sed do
-                                        eiusmod te incididunt
-                                    </p>
-                                    <div className="d-flex justify-content-between flex-lg-wrap">
-                                        <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>
-                                        <a
-                                            href="#"
-                                            className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"
-                                        >
-                                            <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
-                                            cart
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {/*<h1 className="fw-bold mb-0">Related products</h1>*/}
+                    {/*<div className="vesitable">*/}
+                    {/*    <div className="owl-carousel vegetable-carousel justify-content-center">*/}
+                    {/*        <div className="border border-primary rounded position-relative vesitable-item">*/}
+                    {/*            <div className="vesitable-img">*/}
+                    {/*                <img*/}
+                    {/*                    src="img/vegetable-item-6.jpg"*/}
+                    {/*                    className="img-fluid w-100 rounded-top"*/}
+                    {/*                    alt=""*/}
+                    {/*                />*/}
+                    {/*            </div>*/}
+                    {/*            <div*/}
+                    {/*                className="text-white bg-primary px-3 py-1 rounded position-absolute"*/}
+                    {/*                style={{top: 10, right: 10}}*/}
+                    {/*            >*/}
+                    {/*                Vegetable*/}
+                    {/*            </div>*/}
+                    {/*            <div className="p-4 pb-0 rounded-bottom">*/}
+                    {/*                <h4>Parsely</h4>*/}
+                    {/*                <p>*/}
+                    {/*                    Lorem ipsum dolor sit amet consectetur adipisicing elit sed do*/}
+                    {/*                    eiusmod te incididunt*/}
+                    {/*                </p>*/}
+                    {/*                <div className="d-flex justify-content-between flex-lg-wrap">*/}
+                    {/*                    <p className="text-dark fs-5 fw-bold">$4.99 / kg</p>*/}
+                    {/*                    <a*/}
+                    {/*                        href="#"*/}
+                    {/*                        className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"*/}
+                    {/*                    >*/}
+                    {/*                        <i className="fa fa-shopping-bag me-2 text-primary"/> Add to*/}
+                    {/*                        cart*/}
+                    {/*                    </a>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="border border-primary rounded position-relative vesitable-item">*/}
+                    {/*            <div className="vesitable-img">*/}
+                    {/*                <img*/}
+                    {/*                    src="img/vegetable-item-1.jpg"*/}
+                    {/*                    className="img-fluid w-100 rounded-top"*/}
+                    {/*                    alt=""*/}
+                    {/*                />*/}
+                    {/*            </div>*/}
+                    {/*            <div*/}
+                    {/*                className="text-white bg-primary px-3 py-1 rounded position-absolute"*/}
+                    {/*                style={{top: 10, right: 10}}*/}
+                    {/*            >*/}
+                    {/*                Vegetable*/}
+                    {/*            </div>*/}
+                    {/*            <div className="p-4 pb-0 rounded-bottom">*/}
+                    {/*                <h4>Parsely</h4>*/}
+                    {/*                <p>*/}
+                    {/*                    Lorem ipsum dolor sit amet consectetur adipisicing elit sed do*/}
+                    {/*                    eiusmod te incididunt*/}
+                    {/*                </p>*/}
+                    {/*                <div className="d-flex justify-content-between flex-lg-wrap">*/}
+                    {/*                    <p className="text-dark fs-5 fw-bold">$4.99 / kg</p>*/}
+                    {/*                    <a*/}
+                    {/*                        href="#"*/}
+                    {/*                        className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"*/}
+                    {/*                    >*/}
+                    {/*                        <i className="fa fa-shopping-bag me-2 text-primary"/> Add to*/}
+                    {/*                        cart*/}
+                    {/*                    </a>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="border border-primary rounded position-relative vesitable-item">*/}
+                    {/*            <div className="vesitable-img">*/}
+                    {/*                <img*/}
+                    {/*                    src="img/vegetable-item-3.png"*/}
+                    {/*                    className="img-fluid w-100 rounded-top bg-light"*/}
+                    {/*                    alt=""*/}
+                    {/*                />*/}
+                    {/*            </div>*/}
+                    {/*            <div*/}
+                    {/*                className="text-white bg-primary px-3 py-1 rounded position-absolute"*/}
+                    {/*                style={{top: 10, right: 10}}*/}
+                    {/*            >*/}
+                    {/*                Vegetable*/}
+                    {/*            </div>*/}
+                    {/*            <div className="p-4 pb-0 rounded-bottom">*/}
+                    {/*                <h4>Banana</h4>*/}
+                    {/*                <p>*/}
+                    {/*                    Lorem ipsum dolor sit amet consectetur adipisicing elit sed do*/}
+                    {/*                    eiusmod te incididunt*/}
+                    {/*                </p>*/}
+                    {/*                <div className="d-flex justify-content-between flex-lg-wrap">*/}
+                    {/*                    <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>*/}
+                    {/*                    <a*/}
+                    {/*                        href="#"*/}
+                    {/*                        className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"*/}
+                    {/*                    >*/}
+                    {/*                        <i className="fa fa-shopping-bag me-2 text-primary"/> Add to*/}
+                    {/*                        cart*/}
+                    {/*                    </a>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="border border-primary rounded position-relative vesitable-item">*/}
+                    {/*            <div className="vesitable-img">*/}
+                    {/*                <img*/}
+                    {/*                    src="img/vegetable-item-4.jpg"*/}
+                    {/*                    className="img-fluid w-100 rounded-top"*/}
+                    {/*                    alt=""*/}
+                    {/*                />*/}
+                    {/*            </div>*/}
+                    {/*            <div*/}
+                    {/*                className="text-white bg-primary px-3 py-1 rounded position-absolute"*/}
+                    {/*                style={{top: 10, right: 10}}*/}
+                    {/*            >*/}
+                    {/*                Vegetable*/}
+                    {/*            </div>*/}
+                    {/*            <div className="p-4 pb-0 rounded-bottom">*/}
+                    {/*                <h4>Bell Papper</h4>*/}
+                    {/*                <p>*/}
+                    {/*                    Lorem ipsum dolor sit amet consectetur adipisicing elit sed do*/}
+                    {/*                    eiusmod te incididunt*/}
+                    {/*                </p>*/}
+                    {/*                <div className="d-flex justify-content-between flex-lg-wrap">*/}
+                    {/*                    <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>*/}
+                    {/*                    <a*/}
+                    {/*                        href="#"*/}
+                    {/*                        className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"*/}
+                    {/*                    >*/}
+                    {/*                        <i className="fa fa-shopping-bag me-2 text-primary"/> Add to*/}
+                    {/*                        cart*/}
+                    {/*                    </a>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="border border-primary rounded position-relative vesitable-item">*/}
+                    {/*            <div className="vesitable-img">*/}
+                    {/*                <img*/}
+                    {/*                    src="img/vegetable-item-5.jpg"*/}
+                    {/*                    className="img-fluid w-100 rounded-top"*/}
+                    {/*                    alt=""*/}
+                    {/*                />*/}
+                    {/*            </div>*/}
+                    {/*            <div*/}
+                    {/*                className="text-white bg-primary px-3 py-1 rounded position-absolute"*/}
+                    {/*                style={{top: 10, right: 10}}*/}
+                    {/*            >*/}
+                    {/*                Vegetable*/}
+                    {/*            </div>*/}
+                    {/*            <div className="p-4 pb-0 rounded-bottom">*/}
+                    {/*                <h4>Potatoes</h4>*/}
+                    {/*                <p>*/}
+                    {/*                    Lorem ipsum dolor sit amet consectetur adipisicing elit sed do*/}
+                    {/*                    eiusmod te incididunt*/}
+                    {/*                </p>*/}
+                    {/*                <div className="d-flex justify-content-between flex-lg-wrap">*/}
+                    {/*                    <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>*/}
+                    {/*                    <a*/}
+                    {/*                        href="#"*/}
+                    {/*                        className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"*/}
+                    {/*                    >*/}
+                    {/*                        <i className="fa fa-shopping-bag me-2 text-primary"/> Add to*/}
+                    {/*                        cart*/}
+                    {/*                    </a>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="border border-primary rounded position-relative vesitable-item">*/}
+                    {/*            <div className="vesitable-img">*/}
+                    {/*                <img*/}
+                    {/*                    src="img/vegetable-item-6.jpg"*/}
+                    {/*                    className="img-fluid w-100 rounded-top"*/}
+                    {/*                    alt=""*/}
+                    {/*                />*/}
+                    {/*            </div>*/}
+                    {/*            <div*/}
+                    {/*                className="text-white bg-primary px-3 py-1 rounded position-absolute"*/}
+                    {/*                style={{top: 10, right: 10}}*/}
+                    {/*            >*/}
+                    {/*                Vegetable*/}
+                    {/*            </div>*/}
+                    {/*            <div className="p-4 pb-0 rounded-bottom">*/}
+                    {/*                <h4>Parsely</h4>*/}
+                    {/*                <p>*/}
+                    {/*                    Lorem ipsum dolor sit amet consectetur adipisicing elit sed do*/}
+                    {/*                    eiusmod te incididunt*/}
+                    {/*                </p>*/}
+                    {/*                <div className="d-flex justify-content-between flex-lg-wrap">*/}
+                    {/*                    <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>*/}
+                    {/*                    <a*/}
+                    {/*                        href="#"*/}
+                    {/*                        className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"*/}
+                    {/*                    >*/}
+                    {/*                        <i className="fa fa-shopping-bag me-2 text-primary"/> Add to*/}
+                    {/*                        cart*/}
+                    {/*                    </a>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="border border-primary rounded position-relative vesitable-item">*/}
+                    {/*            <div className="vesitable-img">*/}
+                    {/*                <img*/}
+                    {/*                    src="img/vegetable-item-5.jpg"*/}
+                    {/*                    className="img-fluid w-100 rounded-top"*/}
+                    {/*                    alt=""*/}
+                    {/*                />*/}
+                    {/*            </div>*/}
+                    {/*            <div*/}
+                    {/*                className="text-white bg-primary px-3 py-1 rounded position-absolute"*/}
+                    {/*                style={{top: 10, right: 10}}*/}
+                    {/*            >*/}
+                    {/*                Vegetable*/}
+                    {/*            </div>*/}
+                    {/*            <div className="p-4 pb-0 rounded-bottom">*/}
+                    {/*                <h4>Potatoes</h4>*/}
+                    {/*                <p>*/}
+                    {/*                    Lorem ipsum dolor sit amet consectetur adipisicing elit sed do*/}
+                    {/*                    eiusmod te incididunt*/}
+                    {/*                </p>*/}
+                    {/*                <div className="d-flex justify-content-between flex-lg-wrap">*/}
+                    {/*                    <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>*/}
+                    {/*                    <a*/}
+                    {/*                        href="#"*/}
+                    {/*                        className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"*/}
+                    {/*                    >*/}
+                    {/*                        <i className="fa fa-shopping-bag me-2 text-primary"/> Add to*/}
+                    {/*                        cart*/}
+                    {/*                    </a>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*        <div className="border border-primary rounded position-relative vesitable-item">*/}
+                    {/*            <div className="vesitable-img">*/}
+                    {/*                <img*/}
+                    {/*                    src="img/vegetable-item-6.jpg"*/}
+                    {/*                    className="img-fluid w-100 rounded-top"*/}
+                    {/*                    alt=""*/}
+                    {/*                />*/}
+                    {/*            </div>*/}
+                    {/*            <div*/}
+                    {/*                className="text-white bg-primary px-3 py-1 rounded position-absolute"*/}
+                    {/*                style={{top: 10, right: 10}}*/}
+                    {/*            >*/}
+                    {/*                Vegetable*/}
+                    {/*            </div>*/}
+                    {/*            <div className="p-4 pb-0 rounded-bottom">*/}
+                    {/*                <h4>Parsely</h4>*/}
+                    {/*                <p>*/}
+                    {/*                    Lorem ipsum dolor sit amet consectetur adipisicing elit sed do*/}
+                    {/*                    eiusmod te incididunt*/}
+                    {/*                </p>*/}
+                    {/*                <div className="d-flex justify-content-between flex-lg-wrap">*/}
+                    {/*                    <p className="text-dark fs-5 fw-bold">$7.99 / kg</p>*/}
+                    {/*                    <button*/}
+                    {/*                        className="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary"*/}
+
+                    {/*                    >*/}
+                    {/*                        <i className="fa fa-shopping-bag me-2 text-primary"/> Add to*/}
+                    {/*                        cart*/}
+                    {/*                    </button>*/}
+                    {/*                </div>*/}
+                    {/*            </div>*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
                 </div>
             </div>
             {/* Single Product End */}

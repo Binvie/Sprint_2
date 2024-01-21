@@ -28,3 +28,7 @@ export const getImageList = async (id) => {
     const res = await axios.get(URL_IMAGE + `/${id}`);
     return res.data
 }
+
+export const getDetailFruits = async (id) => {
+    return await axios.get(URL_FRUITS + `/detail/${id}`)
+}

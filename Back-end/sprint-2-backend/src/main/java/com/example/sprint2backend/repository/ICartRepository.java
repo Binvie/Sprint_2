@@ -9,28 +9,37 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ICartRepository extends JpaRepository<Cart, Integer> {
     @Query(value = "select cart.fruits_id as fruitsId, cart.quantity, fruits.name, fruits.description, " +
-            "fruits.price, fruits.inventory, cart.id as cartId, " +
-            "(SELECT i.image " +
-            "     FROM fruit_image as i " +
-            "     WHERE i.fruits_id = f.id " +
-            "     ORDER BY i.id LIMIT 1) AS image " +
+            "            fruits.price, fruits.inventory, cart.id as cartId, account.phone_number as phone, " +
+            "            account.address, " +
+            "            MIN(i.image) AS image " +
+            "            FROM cart " +
+            "            JOIN fruits on fruits.id = cart.fruits_id " +
+            "            JOIN account on account.id = cart.account_id " +
+            "            JOIN fruit_image as i ON fruits.id = i.fruits_id " +
+            "            WHERE cart.account_id LIKE :userId " +
+            "            GROUP BY cart.id ", nativeQuery = true)
+    List<ICartDto> getAllCart(@Param("userId") int userId);
+
+    @Query(value = "SELECT * " +
             "FROM cart " +
-            "JOIN fruits on fruit.id = cart.fruits_id " +
-            "WHERE cart.account_id LIKE :userId ", nativeQuery = true)
-    List<ICartDto> getCart(@Param("userId") int userId);
+            "WHERE account_id = :accountId AND fruits_id = :fruitId ", nativeQuery = true)
+    Optional<Cart> checkExistProductInCart(@Param("accountId") Integer userId,
+                                           @Param("fruitId") Integer productId);
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO `cart` (quantity, account_id, fruits_id) VALUES " +
-            "(:#{#cart.quantity}, :#{#cart.accountId}, :#{#cart.fruitsId})",nativeQuery = true)
-    void addCart(Cart cart);
+    @Query(value = "delete from cart where account_id = :accountId and fruits_id = :id ",nativeQuery = true)
+    void deleteFruits(@Param("accountId") int idAccount,@Param("id") int idFruit);
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO `cart` (quantity, account_id, fruits_id) VALUES " +
-            "(:#{#cart.quantity}, :#{#cart.accountId}, :#{#cart.fruitsId})",nativeQuery = true)
-    void addOder();
+    @Query(value = "delete from cart where account_id = :id",nativeQuery = true)
+    void deleteCart(@Param("id") int userId);
+
+    @Query(value = "select * from cart where account_id = :id",nativeQuery = true)
+    List<Cart> findCartById(@Param("id") int userId);
 }

@@ -1,6 +1,30 @@
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 function Footer() {
+    const myBtn = useRef();
+    const [scrollPosition, setScrollPosition] = useState(0);
+
+    const handleScroll = () => {
+        setScrollPosition(window.scrollY);
+    };
+    const topFunction = () => {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+    useEffect(() => {
+        if (scrollPosition > 20) {
+            myBtn.current.style.display = "block";
+        } else {
+            myBtn.current.style.display = "none";
+        }
+    }, [scrollPosition]);
+
     return (
         <>
             {/* Footer Start */}
@@ -108,15 +132,14 @@ function Footer() {
             </div>
             {/* Footer End */}
             {/* Back to Top */}
-            <a
-                href="#"
+            {/*<button ref={myBtn} onClick={topFunction} id="myBtn" title="Go to top">TOP</button>*/}
+            <button
+                ref={myBtn} onClick={topFunction} id="myBtn" title="Go to top"
                 className="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"
             >
-                <i className="far fa-arrow-alt-circle-down fa-2x fa-rotate-180" style={{margin: "-35% -100%"}}>
-                    {/*// style={{color: "#000000", position: "relative", top: "5px", right: "13px"}}>*/}
-
+                <i className="far fa-arrow-alt-circle-down fa-2x fa-rotate-180">
                 </i>
-            </a>
+            </button>
             {/* JavaScript Libraries */}
         </>
     );

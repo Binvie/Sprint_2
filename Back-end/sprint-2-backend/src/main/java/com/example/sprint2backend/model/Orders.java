@@ -16,17 +16,19 @@ public class Orders {
     private String name;
     private double totalAmount;
     private String orderDate;
+    private Integer paymentStatus;
     @ManyToOne
     private Account account;
 
     public Orders() {
     }
 
-    public Orders(int id, String name, double totalAmount, String orderDate, Account account) {
+    public Orders(int id, String name, double totalAmount, String orderDate, Integer paymentStatus, Account account) {
         this.id = id;
         this.name = name;
         this.totalAmount = totalAmount;
         this.orderDate = orderDate;
+        this.paymentStatus = paymentStatus;
         this.account = account;
     }
 
@@ -60,6 +62,14 @@ public class Orders {
 
     public void setOrderDate(String orderDate) {
         this.orderDate = orderDate;
+    }
+
+    public Integer getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(Integer paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public Account getAccount() {

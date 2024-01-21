@@ -77,7 +77,6 @@ public class AccountController {
             return new ResponseEntity<>("Lỗi" + e, HttpStatus.NOT_FOUND);
         }
     }
-
     @GetMapping("/account/{username}")
     public ResponseEntity<?> getAccount(@PathVariable String username) {
         Account account = accountsService.findByUsername(username);

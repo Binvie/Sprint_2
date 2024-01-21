@@ -1,21 +1,23 @@
 import React, {useEffect, useState} from 'react';
-import "../css/products.min.css"
-import {
-    pic1, pic2, pic3, icon1, icon2, icon3, blog1, blog2, blog3,
-    prod1, prod2, prod3, prod4, prod5, prod6, prod7, prod8, login1, loginPic
-} from "../../assets/images";
+import {loginPic} from "../../assets/images";
 import Footer from "./Footer";
 import Header from "./Header";
-import "../css/shop.min.css"
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import * as typeService from "../../services/FruitTypeService"
-import Pagination from "../pagination/Pagination";
 import {toast} from "react-toastify";
-import {Form} from "formik";
-import {Button} from "react-bootstrap";
+import {useDispatch, useSelector} from "react-redux";
+import {addToCart} from "../redux/actions/CartActions";
+import {Form} from "react-bootstrap"
 
 
 function Products() {
+    const location = useLocation();
+
+    // Thiết lập scrollTop khi location thay đổi (chuyển trang)
+    React.useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
+
     const navigate = useNavigate();
     const [typeList, setTypeList] = useState([])
     const [originList, setOriginList] = useState([])
@@ -25,8 +27,14 @@ function Products() {
     const [originId, setOriginId] = useState("")
     const [sortId, setSortId] = useState()
     const [maxPrice, setMaxPrice] = useState(2000000)
+
     const [sortPrice, setSortPrice] = useState("")
-    const [valuePrice, setValuePrice] = useState([10000,1250000])
+    const [value, setValue] = useState([10000, 1250000])
+
+    const dispatch = useDispatch();
+    // const existingUser = JSON.parse(localStorage.getItem("user"));
+    const cart = useSelector(state => state.cart.productArr);
+    // const userId = existingUser.id;
 
     const [page, setPage] = useState(0);
     const [refresh, setRefresh] = useState(true);
@@ -34,6 +42,22 @@ function Products() {
 
     const [searchName, setSearchName] = useState("");
     const pattern = /^[a-zA-Z0-9\sàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]+$/;
+
+    const [existingUser, setExistingUser] = useState({})
+    const [userId, setUserId] = useState(0)
+    const handleAddProductToCart = async (productId) => {
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        if (user) {
+            setExistingUser(user)
+            setUserId(user.id)
+            dispatch(addToCart(userId, productId, 1));
+            toast.success("Thêm vào giỏ hàng thành công!");
+        } else {
+            // navigate("/login")
+            toast.warn("Bạn phải đăng nhập để có thể mua hàng")
+        }
+    }
 
     const getProductListList = async () => {
         try {
@@ -81,7 +105,6 @@ function Products() {
     const handleNameSearch = (value) => {
         setSearchName(value);
     }
-    console.log(searchName)
 
     const getTypeList = async () => {
         try {
@@ -115,12 +138,17 @@ function Products() {
         getProductListList()
     }, [originId, maxPrice, page, typeId, sortPrice]);
 
-
-    const handleCategorySearch = (value) => {
-        setTypeId(value)
-        getProductListList()
+    function valuetext(value) {
+        return `${value.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'})}`;
     }
-    console.log(typeId)
+
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
+    const handleChangeStop = (event, newValue) => {
+        setValue(newValue)
+        getProductListList();
+    };
 
     return (
         <>
@@ -130,7 +158,7 @@ function Products() {
                 <h1 className="text-center text-white display-6">Shop</h1>
                 <ol className="breadcrumb justify-content-center mb-0">
                     <li className="breadcrumb-item">
-                        <Link to="/">Home</Link>
+                        <Link to="/">Trang chủ</Link>
                     </li>
                     <li className="breadcrumb-item active text-white">Shop</li>
                 </ol>
@@ -145,12 +173,6 @@ function Products() {
                             <div className="row g-4">
                                 <div className="col-xl-3">
                                     <div className="input-group w-100 mx-auto d-flex">
-                                        {/*<div className='search-btn'>*/}
-                                        {/*    <span className="input-group-text">*/}
-                                        {/*         <i className="fa fa-search" style={{color: "#e32929"}}*/}
-                                        {/*            onClick={handleSearch}></i>*/}
-                                        {/*    </span>*/}
-                                        {/*</div>*/}
                                         <input type="search" className="form-control"
                                                placeholder="Tìm kiếm" aria-label="Username"
                                                aria-describedby="addon-wrapping"
@@ -160,10 +182,6 @@ function Products() {
                                                onKeyDown={(e) => {
                                                    handleKeyDown(e)
                                                }}/>
-                                        {/*<Button type="submit">search</Button>*/}
-                                        {/*<span id="search-icon-1" className="btn btn-light input-group-text p-3">*/}
-                                        {/*    <i className="fa fa-search" onClick={handleSearch}/>*/}
-                                        {/*</span>*/}
                                     </div>
                                 </div>
                                 <div className="col-6"/>
@@ -177,7 +195,7 @@ function Products() {
                                             form="fruitform"
                                             onChange={event => setSortPrice(event.target.value)}>
                                             >
-                                            <option value="0">Không sắp xếp</option>
+                                            <option value="">Không sắp xếp</option>
                                             <option value="1">Giá tăng dần</option>
                                             <option value="2">Giá giảm dần</option>
                                         </select>
@@ -196,7 +214,8 @@ function Products() {
                                                             <>
                                                                 <ul className="list-unstyled fruite-categorie"
                                                                     key={type.id}>
-                                                                    <li value={type.id} role="button" onClick={event => setTypeId(event.target.value)}>
+                                                                    <li value={type.id} role="button"
+                                                                        onClick={event => setTypeId(event.target.value)}>
                                                                         <i className={`${type.id === typeId ? 'text-warning' : 'text-primary'} fas fa-apple-alt me-2 `}/>{type.name}
                                                                     </li>
                                                                 </ul>
@@ -208,32 +227,17 @@ function Products() {
                                         </div>
                                         <div className="col-lg-12">
                                             <div className="mb-3">
-                                                <h4 className="mb-2">Price</h4>
+                                                <h4 className="mb-2">Giá</h4>
                                                 <div>
-                                                    {/*<p>Chọn khoảng giá: Từ <b>{value[0].toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</b> đến <b>{value[1].toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</b></p>*/}
-                                                    {/*<Box sx={{ width: 300 }}>*/}
-                                                    {/*    <Slider*/}
-                                                    {/*        getAriaLabel={() => 'Temperature range'}*/}
-                                                    {/*        value={value}*/}
-                                                    {/*        onChange={handleChange}*/}
-                                                    {/*        onChangeCommitted={handleChangeStop}*/}
-                                                    {/*        valueLabelDisplay="auto"*/}
-                                                    {/*        valueLabelFormat={valuetext}*/}
-                                                    {/*        min={50000}*/}
-                                                    {/*        max={1000000}*/}
-                                                    {/*    />*/}
-                                                    {/*</Box>*/}
+                                                    <Form.Select aria-label="Default select example"
+                                                                 style={{width: "80%"}}
+                                                                 onChange={evt => setMaxPrice(evt.target.value)}>
+                                                        <option value={2000000}>---Chọn mức giá---</option>
+                                                        <option value={1000000}>dưới 1.000.000</option>
+                                                        <option value={500000}>dưới 500.000</option>
+                                                        <option value={200000}>dưới 200.000</option>
+                                                    </Form.Select>
                                                 </div>
-
-                                                <output
-                                                    id="amount"
-                                                    name="amount"
-                                                    min-velue={0}
-                                                    max-value={500}
-                                                    htmlFor="rangeInput"
-                                                >
-                                                    0
-                                                </output>
                                             </div>
                                         </div>
                                         <div className="col-lg-12">
@@ -245,7 +249,8 @@ function Products() {
                                                             <div className="mb-2" key={origin.id}>
                                                                 <ul className="list-unstyled fruite-categorie"
                                                                     key={origin.id}>
-                                                                    <li value={origin.id} role="button" onClick={event => setOriginId(event.target.value)}>
+                                                                    <li value={origin.id} role="button"
+                                                                        onClick={event => setOriginId(event.target.value)}>
                                                                         <i className={`${origin.id === originId ? 'text-warning' : 'text-primary'} fas fa-apple-alt me-2 `}/>{origin.name}
                                                                     </li>
                                                                 </ul>
@@ -253,78 +258,6 @@ function Products() {
                                                         </>
                                                     )
                                                 })}
-                                            </div>
-                                        </div>
-                                        <div className="col-lg-12">
-                                            <h4 className="mb-3">Featured products</h4>
-                                            <div className="d-flex align-items-center justify-content-start">
-                                                <div
-                                                    className="rounded me-4"
-                                                    style={{width: 100, height: 100}}
-                                                >
-                                                    <img
-                                                        src={prod2}
-                                                        className="img-fluid rounded"
-                                                        alt=""
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <h6 className="mb-2">Big Banana</h6>
-                                                    <div className="d-flex mb-2">
-                                                    </div>
-                                                    <div className="d-flex mb-2">
-                                                        <h5 className="fw-bold me-2">2.99 $</h5>
-                                                        <h5 className="text-danger text-decoration-line-through">
-                                                            4.11 $
-                                                        </h5>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="d-flex align-items-center justify-content-start">
-                                                <div
-                                                    className="rounded me-4"
-                                                    style={{width: 100, height: 100}}
-                                                >
-                                                    <img
-                                                        src={prod1}
-                                                        className="img-fluid rounded"
-                                                        alt=""
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <h6 className="mb-2">Big Banana</h6>
-                                                    <div className="d-flex mb-2">
-                                                    </div>
-                                                    <div className="d-flex mb-2">
-                                                        <h5 className="fw-bold me-2">2.99 $</h5>
-                                                        <h5 className="text-danger text-decoration-line-through">
-                                                            4.11 $
-                                                        </h5>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="d-flex align-items-center justify-content-start">
-                                                <div
-                                                    className="rounded me-4"
-                                                    style={{width: 100, height: 100}}
-                                                >
-                                                    <img
-                                                        src={prod3}
-                                                        className="img-fluid rounded"
-                                                        alt=""
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <h6 className="mb-2">Big Banana</h6>
-                                                    <div className="d-flex mb-2">
-                                                    </div>
-                                                    <div className="d-flex mb-2">
-                                                        <h5 className="fw-bold me-2">2.99 $</h5>
-                                                        <h5 className="text-danger text-decoration-line-through">
-                                                            4.11 $
-                                                        </h5>
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
                                         <div className="col-lg-12">
@@ -354,7 +287,8 @@ function Products() {
                                     <div className="row g-4 justify-content-center">
                                         {productList.length !== 0 ? (
                                             productList.map(product => (
-                                                <div className="col-md-6 col-lg-6 col-xl-4" key={product.id}>
+                                                <div className="col-md-6 col-lg-6 col-xl-4  border border-secondary"
+                                                     key={product.idFruits}>
                                                     <div className="rounded position-relative fruite-item">
                                                         <div className="fruite-img">
                                                             <img
@@ -362,21 +296,26 @@ function Products() {
                                                                 className="img-fluid w-100 rounded-top"
                                                                 alt=""
                                                                 style={{
-                                                                    width: "254.984px",
-                                                                    height: "252.734px",
+                                                                    width: "252.984px",
+                                                                    height: "250.734px",
                                                                     objectFit: "cover"
                                                                 }}
                                                             />
                                                         </div>
-                                                        {/*<div*/}
-                                                        {/*    className="text-white bg-secondary px-3 py-1 rounded position-absolute"*/}
-                                                        {/*    style={{top: 10, left: 10}}*/}
-                                                        {/*>*/}
-                                                        {/*    Fruits*/}
-                                                        {/*</div>*/}
+                                                        {product.quantity <= 0 &&
+                                                            <div
+                                                                className="bg-secondary rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">
+                                                                Hết hàng
+                                                            </div>
+                                                        }
                                                         <div
-                                                            className="p-4 border border-secondary border-top-0 rounded-bottom">
-                                                            <h4>{truncateText(product.fruitsName, 15)}</h4>
+                                                            className="p-4 rounded-bottom">
+                                                            <h4>
+                                                                <Link to={`/detail/${product.idFruits}`} id="card-title"
+                                                                      title={product.name}>
+                                                                    {truncateText(product.fruitsName, 15)}
+                                                                </Link>
+                                                            </h4>
                                                             <p>
                                                                 {truncateText(product.description, 60)}
                                                             </p>
@@ -389,10 +328,12 @@ function Products() {
                                                                     }).format(product.fruitsPrice)}
                                                                 </p>
                                                                 <a
-                                                                    href="#"
+                                                                    role="button"
+                                                                    onClick={() => handleAddProductToCart(product.idFruits)}
+
                                                                     className="btn border border-secondary rounded-pill px-3 text-primary"
                                                                 >
-                                                                    <i className="fa fa-shopping-bag me-2 text-primary"/>{" "}
+                                                                    <i className="fa fa-shopping-bag me-2 text-primary"/>
                                                                     Add to cart
                                                                 </a>
                                                             </div>

@@ -16,7 +16,7 @@ public class Cart {
     private int quantity ;
     @ManyToOne
     private Fruits fruits;
-    @OneToOne
+    @ManyToOne
     private Account account;
 
     public Cart() {
@@ -24,6 +24,12 @@ public class Cart {
 
     public Cart(int id, int quantity, Fruits fruits, Account account) {
         this.id = id;
+        this.quantity = quantity;
+        this.fruits = fruits;
+        this.account = account;
+    }
+
+    public Cart(int quantity, Fruits fruits, Account account) {
         this.quantity = quantity;
         this.fruits = fruits;
         this.account = account;

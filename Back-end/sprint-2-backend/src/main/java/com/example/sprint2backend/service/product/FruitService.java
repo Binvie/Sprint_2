@@ -1,6 +1,9 @@
 package com.example.sprint2backend.service.product;
 
+import com.example.sprint2backend.dto.DetailFruit;
 import com.example.sprint2backend.dto.IFruitsDto;
+import com.example.sprint2backend.dto.IImageDto;
+import com.example.sprint2backend.model.Cart;
 import com.example.sprint2backend.model.product.Fruits;
 import com.example.sprint2backend.repository.IFruitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +21,12 @@ public class FruitService implements IFruitService {
 
     @Override
     public List<Fruits> findAll() {
-        return null;
+        return fruitRepository.findAll();
     }
 
     @Override
     public Optional<Fruits> findById(Integer id) {
-        return Optional.empty();
+        return fruitRepository.findById(id);
     }
 
     @Override
@@ -50,5 +53,21 @@ public class FruitService implements IFruitService {
     public Page<IFruitsDto> findFruitsByFruitTypeProductsPage(String type, String origin, String maxPrice, Pageable pageable, String name) {
         return fruitRepository.findFruitsByFruitTypeProductsPage("%" + type + "%", "%" + origin + "%",  maxPrice, pageable, "%" + name + "%");
     }
+
+    @Override
+    public DetailFruit findDetailFruitsById(Integer id) {
+        return fruitRepository.findDetailFruitsById(id);
+    }
+
+    @Override
+    public List<IImageDto> findImageByFruits(int id) {
+        return fruitRepository.findImageByFruits(id);
+    }
+
+    @Override
+    public Cart findProductInCart(int fruitId, int accountId) {
+        return fruitRepository.findFruitInCart(fruitId, accountId);
+    }
+
 
 }

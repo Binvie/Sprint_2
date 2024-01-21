@@ -27,7 +27,6 @@ export function Paypal(prop) {
             if (res.status === 200){
                 toast("Thanh toán thành công");
                 dispatch(payCarts());
-                console.log("ok")
                 setIsRender(!isRender)
                 await Swal.fire({
                     icon: 'success',
@@ -56,7 +55,6 @@ export function Paypal(prop) {
     }
     return(
         <>
-            cartState.cartItem.length > 0 &&
             <PayPalButtons
                 style={{
                     color: "silver",

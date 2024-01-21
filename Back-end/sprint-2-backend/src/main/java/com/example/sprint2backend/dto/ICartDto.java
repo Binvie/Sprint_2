@@ -16,4 +16,8 @@ public interface ICartDto {
     int getInventory();
 
     int getCartId();
+
+    String getAddress();
+    String getPhone();
+
 }

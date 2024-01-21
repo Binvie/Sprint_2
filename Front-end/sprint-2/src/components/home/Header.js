@@ -2,40 +2,59 @@ import React, {useEffect, useState} from 'react';
 import {Link, useLocation, useNavigate} from "react-router-dom";
 import * as accountService from "../../services/AccountService"
 import ModalLogout from "../modal/ModalLogout";
-import {Button, Modal} from "react-bootstrap";
+import {Button, Dropdown, Modal} from "react-bootstrap";
 import {toast} from "react-toastify";
+import {useDispatch, useSelector} from "react-redux";
+import {getCartFromAPI} from "../redux/actions/CartActions";
 
 function Header() {
     const location = useLocation();
-    const [user, setUser] = useState(localStorage.getItem("JWT"))
     const [username, setUsername] = useState("")
     const [show, setShow] = useState(false);
     const navigate = useNavigate();
     const [active, setActive] = useState(false)
+    const dispatch = useDispatch();
 
+    const cartInit = useSelector((state) => state.cart);
+    const totalItem = useSelector((state) => state.cart.totalItem);
 
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    const handleDropdownToggle = () => {
+        setShowDropdown(!showDropdown);
+    };
+
+    const handleDropdownClose = () => {
+        setShowDropdown(!showDropdown);
+    };
     const getInfo = async () => {
-        const res = await accountService.infoToken()
-        if (res != null) {
-            setUsername(res.sub)
+        try {
+            const res = await accountService.infoToken()
+            if (res != null) {
+                setUsername(res.sub)
+            }
+        } catch (e) {
+            alert("Error " + e)
         }
     }
 
     const logOutUser = async () => {
-        await localStorage.removeItem('JWT');
-        navigate("/");
+        await localStorage.removeItem('user');
+        setShow(false)
+        setActive(false)
         toast.success("Đăng xuất thành công!")
-        window.location.href = '/';
+        navigate(-1);
+        // window.location.href = '/';
     };
 
     useEffect(() => {
+        dispatch(getCartFromAPI())
         getInfo()
-    }, []);
+    }, [totalItem, showDropdown]);
 
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
     return (
         <>
             <div
@@ -101,19 +120,7 @@ function Header() {
                             {/*</Link>*/}
                         </div>
                         <div className="d-none d-lg-flex ms-2">
-                            {/*<a className="btn-sm-square bg-white rounded-circle ms-3" href="">*/}
-                            {/*    <small className="fa fa-search text-body"/>*/}
-                            {/*</a>*/}
-                            <Link className="btn-sm-square bg-white rounded-circle ms-3" to="/cart"
-                                  style={{
-                                      display: "flex",
-                                      position: "relative",
-                                      // marginTop: "10px",
-                                      fontSize: "200%"
-                                  }}>
-                                <small className="fa fa-shopping-bag text-body"/>
-                            </Link>
-                            {!user ? (
+                            {!username ? (
                                 <Link className="btn-sm-square bg-white rounded-circle ms-3" to="/login"
                                       style={{
                                           display: "flex",
@@ -126,17 +133,44 @@ function Header() {
                                 </Link>
                             ) : (
                                 <div className="nav-link text-light align-text-bottom d-flex ">
-                                    <p style={{
-                                        margin: "0 10px",
-                                        fontWeight: "500",
-                                        fontSize: "18px",
-                                        color: "black",
-                                        marginTop: "5px"
-                                    }}>{username}
+                                    <Link className="btn-sm-square bg-white rounded-circle ms-3" to="/cart"
+                                          style={{
+                                              display: "flex",
+                                              position: "relative",
+                                              // marginTop: "10px",
+                                              fontSize: "200%"
+                                          }}>
+                                        <span className="fa fa-shopping-bag text-body"/>
+                                        <span
+                                            className="position-absolute start-100 translate-middle badge rounded-pill bg-danger"
+                                            style={{fontSize: '0.8em', padding: '5px'}}>
+                                             {cartInit.totalItem}
+                                            {/*<span className="visually-hidden">unread messages</span>*/}
+                                        </span>
+                                    </Link>
+                                    <p
+                                        style={{
+                                            margin: "0 10px",
+                                            fontWeight: "500",
+                                            fontSize: "18px",
+                                            color: "black",
+                                            marginTop: "5px"
+                                        }}
+                                    >{username}
                                     </p>
-                                    <Button variant="primary sm-3" onClick={handleShow}>
-                                        Log Out
-                                    </Button>
+                                    {/*<Button variant="primary sm-3 bg-white" onClick={handleShow}>*/}
+                                    {/*    <small className="fa fa-user text-body"/>*/}
+                                    {/*</Button>*/}
+                                    <Dropdown>
+                                        <Dropdown.Toggle variant="warning primary sm-3 bg-white" id="dropdown-basic">
+                                            <small className="fa fa-user text-body"/>
+                                        </Dropdown.Toggle>
+
+                                        <Dropdown.Menu>
+                                            <Dropdown.Item href="/cart/detail">Lịch sử mua hàng</Dropdown.Item>
+                                            <Dropdown.Item onClick={handleShow}>Đăng xuất </Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    </Dropdown>
                                 </div>
                             )}
                         </div>

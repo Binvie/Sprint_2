@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface IAccountRepository extends JpaRepository<Account, Integer> {
-   @Query(value = "SELECT * FROM account as a WHERE a.username = :username ", nativeQuery = true)
-   Account findByUsername(@Param("username") String username);
+   @Query(value = "SELECT * FROM `sprint-2`.account where username like :searchName ", nativeQuery = true)
+   Account findByUsername(@Param("searchName") String username);
 
+   @Query(value = "SELECT * FROM `sprint-2`.account where id like :id ", nativeQuery = true)
+   Account findAccountsById(@Param("id") Integer id);
 }

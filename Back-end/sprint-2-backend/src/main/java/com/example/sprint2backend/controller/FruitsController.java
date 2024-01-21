@@ -1,7 +1,9 @@
 package com.example.sprint2backend.controller;
 
+import com.example.sprint2backend.dto.DetailFruit;
+import com.example.sprint2backend.dto.DetailResponse;
 import com.example.sprint2backend.dto.IFruitsDto;
-import com.example.sprint2backend.model.product.FruitImage;
+import com.example.sprint2backend.dto.IImageDto;
 import com.example.sprint2backend.model.product.Fruits;
 import com.example.sprint2backend.service.*;
 import com.example.sprint2backend.service.product.IFruitImageService;
@@ -80,12 +82,16 @@ public class FruitsController {
     }
 
     @GetMapping("/detail/{id}")
-    public ResponseEntity<?> getImageList(@PathVariable(name = "id", required = false) String id) {
+    public ResponseEntity<?> getFruits(@PathVariable(name = "id") Integer id){
+        DetailFruit fruits = fruitService.findDetailFruitsById(id);
+        List<IImageDto> images = fruitService.findImageByFruits(id);
 
-        List<FruitImage> fruitImages = fruitImageService.findFruitImagesByFruits(id);
-        if (fruitImages != null) {
-            return new ResponseEntity<>(fruitImages, HttpStatus.OK);
+        DetailResponse detailResponse = new DetailResponse();
+        detailResponse.setFruit(fruits);
+        detailResponse.setImages(images);
+        if (fruits == null || images.isEmpty()){
+            return new ResponseEntity<>("Không tìm thấy sản phẩm",HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("Không tìm thấy danh sách.", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(detailResponse,HttpStatus.OK);
     }
 }

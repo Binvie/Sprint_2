@@ -21,7 +21,7 @@ public class AccountsService implements IAccountsService {
     private IAccountRepository accountRepository;
     @Override
     public Account findAccountById(Integer id) {
-        return accountRepository.findById(id).get();
+        return accountRepository.findAccountsById(id);
     }
 
     @Override

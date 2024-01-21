@@ -1,20 +1,46 @@
-import React, {useEffect, useState} from 'react';
-import {Link} from "react-router-dom";
+import React, {useEffect, useRef, useState} from 'react';
+import {Link, useLocation, useNavigate} from "react-router-dom";
 import "../css/bootstrap.min.css"
-import "../css/style.css"
+import "../backUpCss/style.css"
 import {
-    pic1, pic2, pic3, icon1, icon2, icon3, blog1, blog2, blog3,
-    prod1, prod2, prod3, prod4, prod5, prod6, prod7, prod8, login1, loginPic
+    pic1, pic2, pic3, icon1, icon2, icon3, blog1, blog2, blog3
 } from "../../assets/images";
 import Header from "./Header";
 import Footer from "./Footer";
 import * as typeService from "../../services/FruitTypeService"
+import {toast} from "react-toastify";
+import {useDispatch, useSelector} from "react-redux";
+import {addToCart} from "../redux/actions/CartActions";
 
 function Home() {
     const [typeList, setTypeList] = useState([]);
     const [list8, setList8] = useState([])
     const [typeId, setTypeId] = useState("")
+    const navigate = useNavigate();
 
+    const dispatch = useDispatch();
+    const cart = useSelector(state => state.cart.productArr);
+    const [existingUser, setExistingUser] = useState({})
+    const [userId, setUserId] = useState(0)
+
+    const handleAddProductToCart = async (productId) => {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user) {
+            setExistingUser(user)
+            setUserId(user.id)
+            dispatch(addToCart(userId, productId, 1));
+            toast.success("Thêm vào giỏ hàng thành công!");
+        }else {
+            // navigate("/login")
+            toast.warn("Bạn phải đăng nhập để có thể mua hàng")
+        }
+    }
+    const location = useLocation();
+
+    // Thiết lập scrollTop khi location thay đổi (chuyển trang)
+    React.useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
     const getTypeList = async () => {
         try {
             const res = await typeService.getTypeListService();
@@ -38,6 +64,14 @@ function Home() {
         getListHomePage()
     }, [typeId]);
 
+    function truncateText(text, maxLength) {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        // Nếu độ dài vượt quá giới hạn, rút gọn và thêm dấu '...'
+        return text.slice(0, maxLength) + '...';
+    }
+
     return (
         <>
             <Header/>
@@ -56,44 +90,13 @@ function Home() {
                                 <div className="container">
                                     <div className="row justify-content-start">
                                         <div className="col-lg-7">
-                                            <h1 className="display-2 mb-5 animated slideInDown">
+                                            <h1 className="display-2 mb-5 animated slideInDown text-warning">
                                                 Organic Food Is Good For Health
                                             </h1>
                                             <Link
-                                                className="btn btn-primary rounded-pill py-sm-3 px-sm-5"
+                                                className="btn btn-primary rounded-pill py-sm-3 px-sm-5 justify-content-center align-items-center"
                                                 to="/products">
                                                 Sản phẩm
-                                            </Link>
-                                            <Link
-                                                href=""
-                                                className="btn btn-primary rounded-pill py-sm-3 px-sm-5 ms-3"
-                                                to="/detail">
-                                                Chi tiết sản phẩm
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="carousel-item">
-                            <img className="w-100" src={pic2} alt="Image"/>
-                            <div className="carousel-caption">
-                                <div className="container">
-                                    <div className="row justify-content-start">
-                                        <div className="col-lg-7">
-                                            <h1 className="display-2 mb-5 animated slideInDown">
-                                                Natural Food Is Always Healthy
-                                            </h1>
-                                            <Link
-                                                className="btn btn-primary rounded-pill py-sm-3 px-sm-5"
-                                                to="/products">
-                                                Products
-                                            </Link>
-                                            <Link
-                                                href=""
-                                                className="btn btn-secondary rounded-pill py-sm-3 px-sm-5 ms-3"
-                                                to="/products">
-                                                Services
                                             </Link>
                                         </div>
                                     </div>
@@ -152,9 +155,6 @@ function Home() {
                                 ngon,
                                 an toàn sức khoẻ.
                             </p>
-                            {/*<a className="btn btn-primary rounded-pill py-3 px-5 mt-3" href="">*/}
-                            {/*    Read More*/}
-                            {/*</a>*/}
                         </div>
                     </div>
                 </div>
@@ -177,41 +177,29 @@ function Home() {
                         <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                             <div className="bg-white text-center h-100 p-4 p-xl-5">
                                 <img className="img-fluid mb-4" src={icon1} alt=""/>
-                                <h4 className="mb-3">Natural Process</h4>
+                                <h4 className="mb-3">Quy trình thân thiện</h4>
                                 <p className="mb-4">
                                     Quy trình đạt chuẩn quốc tế. Có các máy móc, thiệt bị hiện đại để giúp cho quá trình
                                     sinh trưởng của trái cây
                                     thân thiện với môi trường và đem lại thực phẩm sạch cho khách hàng
                                 </p>
-                                {/*<a*/}
-                                {/*    className="btn btn-outline-primary border-2 py-2 px-4 rounded-pill"*/}
-                                {/*    href=""*/}
-                                {/*>*/}
-                                {/*    Read More*/}
-                                {/*</a>*/}
                             </div>
                         </div>
                         <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
                             <div className="bg-white text-center h-100 p-4 p-xl-5">
                                 <img className="img-fluid mb-4" src={icon2} alt=""/>
-                                <h4 className="mb-3">Organic Products</h4>
+                                <h4 className="mb-3">Sản phẩm sạch</h4>
                                 <p className="mb-4">
                                     Sản phẩm được làm từ nguyên liệu tự nhiên, không sử dụng hóa chất tổng hợp,
                                     thuốc trừ sâu, hay sinh vật biến đổi gen. Sản phẩm organic tốt cho sức khỏe, môi
                                     trường, và những người sản xuất chúng
                                 </p>
-                                {/*<a*/}
-                                {/*    className="btn btn-outline-primary border-2 py-2 px-4 rounded-pill"*/}
-                                {/*    href=""*/}
-                                {/*>*/}
-                                {/*    Read More*/}
-                                {/*</a>*/}
                             </div>
                         </div>
                         <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
                             <div className="bg-white text-center h-100 p-4 p-xl-5">
                                 <img className="img-fluid mb-4" src={icon3} alt=""/>
-                                <h4 className="mb-3">Biologically Safe</h4>
+                                <h4 className="mb-3">không chất hoá học</h4>
                                 <p className="mb-4">
                                     Vì sức khỏe người tiêu dùng, tuyệt đối không sử dụng hóa chất, kháng sinh ngoài danh
                                     mục,
@@ -252,20 +240,21 @@ function Home() {
                         >
                             <ul className="nav nav-pills d-inline-flex justify-content-end mb-5">
                                 {typeList.length !== 0 ? (typeList.map(typeProduct => {
-                                    return(
-                                    <>
-                                        <li className="nav-item me-2" key={typeProduct.id}>
-                                            <button
-                                                className="btn btn-outline-primary border-2"
-                                                data-bs-toggle="pill"
-                                                value={typeProduct.id}
-                                                onClick={evt => setTypeId(evt.target.value)}
-                                            >
-                                                {typeProduct.name}
-                                            </button>
-                                        </li>
-                                    </>
-                                    )})) : (<div className="text-warning text-center"></div>)
+                                    return (
+                                        <>
+                                            <li className="nav-item me-2" key={typeProduct.id}>
+                                                <button
+                                                    className="btn btn-outline-primary border-2"
+                                                    data-bs-toggle="pill"
+                                                    value={typeProduct.id}
+                                                    onClick={evt => setTypeId(evt.target.value)}
+                                                >
+                                                    {typeProduct.name}
+                                                </button>
+                                            </li>
+                                        </>
+                                    )
+                                })) : (<div className="text-warning text-center"></div>)
                                 }
                             </ul>
                         </div>
@@ -277,42 +266,52 @@ function Home() {
                                         return (
                                             <>
                                                 <div key={products.id}
-                                                    className="col-xl-3 col-lg-4 col-md-6 wow fadeInUp"
-                                                    data-wow-delay="0.1s"
+                                                     className="col-xl-3 col-lg-4 col-md-6 wow fadeInUp"
+                                                     data-wow-delay="0.1s"
                                                 >
                                                     <div className="product-item">
                                                         <div className="position-relative bg-light overflow-hidden">
-                                                            {/*<div >*/}
                                                             <img style={{width: "255px", height: "255px"}}
-                                                                className="img-fluid w-100"
-                                                                src={products.fruitImage}
-                                                                alt=""
+                                                                 className="img-fluid w-100"
+                                                                 src={products.fruitImage}
+                                                                 alt=""
                                                             />
-                                                            {/*</div>*/}
-                                                            <div
-                                                                className="bg-secondary rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">
-                                                                New
-                                                            </div>
+                                                            {products.quantity > 0 &&
+                                                                <div
+                                                                    className="bg-secondary rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">
+                                                                    Hết hàng
+                                                                </div>
+                                                            }
                                                         </div>
                                                         <div className="text-center p-4">
-                                                            <a className="d-block h5 mb-2" href="" style={{
+                                                            <h3 className="d-block h5 mb-2" href="" style={{
                                                                 objectFit: "cover",
                                                                 width: "100%",
                                                                 height: "100%",
-                                                            }} >
-                                                                {products.fruitsName}
-                                                            </a>
-                                                            <span className="text-primary me-1">{new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND'}).format(products.fruitsPrice)}</span>
+                                                            }}>
+                                                                <Link to={`/detail/${products.idFruits}`} id="card-title"
+                                                                      title={products.name}>
+                                                                    {truncateText(products.fruitsName, 15)}
+                                                                </Link>
+                                                            </h3>
+                                                            <span
+                                                                className="text-primary me-1">{new Intl.NumberFormat('vi-VN', {
+                                                                style: 'currency',
+                                                                currency: 'VND'
+                                                            }).format(products.fruitsPrice)}</span>
                                                         </div>
                                                         <div className="d-flex border-top">
                                                             <small className="w-50 text-center border-end py-2">
-                                                                <a className="text-body" href="">
-                                                                    <i className="fa fa-eye text-primary me-2"/>
-                                                                    View detail
-                                                                </a>
+                                                                <Link to={`/detail/${products.idFruits}`}
+                                                                      className="t-icon-link">
+                                                                    <i className="fa fa-eye text-primary me-2"/> Chi tiết
+                                                                </Link>
                                                             </small>
+
                                                             <small className="w-50 text-center py-2">
-                                                                <a className="text-body" href="">
+                                                                <a className="text-body" role="button"
+                                                                   onClick={() => handleAddProductToCart(products.idFruits)}
+                                                                >
                                                                     <i className="fa fa-shopping-bag text-primary me-2"/>
                                                                     Add to cart
                                                                 </a>
@@ -330,7 +329,7 @@ function Home() {
                                     data-wow-delay="0.1s"
                                 >
                                     <Link className="btn btn-primary rounded-pill py-3 px-5" to="/products">
-                                        Browse More Products
+                                        Xem thêm
                                     </Link>
                                 </div>
                             </div>
@@ -662,29 +661,29 @@ function Home() {
             </div>
             {/* Product End */}
             {/* Firm Visit Start */}
-            <div className="container-fluid bg-primary bg-icon mt-5 py-6">
-                <div className="container">
-                    <div className="row g-5 align-items-center">
-                        <div className="col-md-7 wow fadeIn" data-wow-delay="0.1s">
-                            <h1 className="display-5 text-white mb-3">Visit Our Firm</h1>
-                            <p className="text-white mb-0">
-                                Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu
-                                diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet
-                                lorem sit clita duo justo magna dolore erat amet. Diam dolor diam
-                                ipsum sit. Aliqu diam amet diam et eos.
-                            </p>
-                        </div>
-                        <div className="col-md-5 text-md-end wow fadeIn" data-wow-delay="0.5s">
-                            <a
-                                className="btn btn-lg btn-secondary rounded-pill py-3 px-5"
-                                href=""
-                            >
-                                Visit Now
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {/*<div className="container-fluid bg-primary bg-icon mt-5 py-6">*/}
+            {/*    <div className="container">*/}
+            {/*        <div className="row g-5 align-items-center">*/}
+            {/*            <div className="col-md-7 wow fadeIn" data-wow-delay="0.1s">*/}
+            {/*                <h1 className="display-5 text-white mb-3">Visit Our Firm</h1>*/}
+            {/*                <p className="text-white mb-0">*/}
+            {/*                    Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu*/}
+            {/*                    diam amet diam et eos. Clita erat ipsum et lorem et sit, sed stet*/}
+            {/*                    lorem sit clita duo justo magna dolore erat amet. Diam dolor diam*/}
+            {/*                    ipsum sit. Aliqu diam amet diam et eos.*/}
+            {/*                </p>*/}
+            {/*            </div>*/}
+            {/*            <div className="col-md-5 text-md-end wow fadeIn" data-wow-delay="0.5s">*/}
+            {/*                <a*/}
+            {/*                    className="btn btn-lg btn-secondary rounded-pill py-3 px-5"*/}
+            {/*                    href=""*/}
+            {/*                >*/}
+            {/*                    Visit Now*/}
+            {/*                </a>*/}
+            {/*            </div>*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
             {/* Firm Visit End */}
             {/* Testimonial Start */}
             {/*<div className="container-fluid bg-light bg-icon py-6 mb-5">*/}
@@ -788,18 +787,17 @@ function Home() {
                         data-wow-delay="0.1s"
                         style={{maxWidth: 500}}
                     >
-                        <h1 className="display-5 mb-3">Latest Blog</h1>
+                        <h1 className="display-5 mb-3">Tin tức mới</h1>
                         <p>
-                            Tempor ut dolore lorem kasd vero ipsum sit eirmod sit. Ipsum diam
-                            justo sed rebum vero dolor duo.
+                            Chia sẻ những lợi ích mà thực phẩm sạch mang lại cho môi trường nói chung và sức khoẻ của bạn nói riêng.
                         </p>
                     </div>
                     <div className="row g-4">
                         <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                             <img className="img-fluid" src={blog1} alt=""/>
                             <div className="bg-light p-4">
-                                <a className="d-block h5 lh-base mb-4" href="">
-                                    How to cultivate organic fruits and vegetables in own firm
+                                <a className="d-block h5 lh-base mb-4 text-decoration-none" href="">
+                                    Những lợi ích mà trái cây organic mang lại
                                 </a>
                                 <div className="text-muted border-top pt-4">
                                     <small className="me-3">
@@ -816,8 +814,8 @@ function Home() {
                         <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
                             <img className="img-fluid" src={blog2} alt=""/>
                             <div className="bg-light p-4">
-                                <a className="d-block h5 lh-base mb-4" href="">
-                                    How to cultivate organic fruits and vegetables in own firm
+                                <a className="d-block h5 lh-base mb-4 text-decoration-none" href="">
+                                    Đóng góp của nền nông nghiệp sạch trong việc bảo vệ môi trường
                                 </a>
                                 <div className="text-muted border-top pt-4">
                                     <small className="me-3">
@@ -834,8 +832,8 @@ function Home() {
                         <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
                             <img className="img-fluid" src={blog3} alt=""/>
                             <div className="bg-light p-4">
-                                <a className="d-block h5 lh-base mb-4" href="">
-                                    How to cultivate organic fruits and vegetables in own firm
+                                <a className="d-block h5 lh-base mb-4 text-decoration-none" href="">
+                                    Thay lối sống của bạn bằng cách sử dụng thực phẩm sạch
                                 </a>
                                 <div className="text-muted border-top pt-4">
                                     <small className="me-3">
