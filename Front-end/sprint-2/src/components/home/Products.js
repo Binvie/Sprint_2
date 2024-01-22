@@ -8,6 +8,7 @@ import {toast} from "react-toastify";
 import {useDispatch, useSelector} from "react-redux";
 import {addToCart} from "../redux/actions/CartActions";
 import {Form} from "react-bootstrap"
+import * as accountService from "../../services/AccountService";
 
 
 function Products() {
@@ -45,6 +46,23 @@ function Products() {
 
     const [existingUser, setExistingUser] = useState({})
     const [userId, setUserId] = useState(0)
+    const [username, setUsername] = useState("")
+    const [user, setUser] = useState({})
+    const infoUsername = async () => {
+        let res = await accountService.infoToken()
+        if (res) {
+            setUsername(res.sub)
+            let res1 = JSON.parse(localStorage.getItem("user"))
+            setUserId(res1.id)
+            console.log(res1.id)
+        }
+    }
+
+    useEffect(() => {
+        infoUsername()
+    }, []);
+
+
     const handleAddProductToCart = async (productId) => {
         const user = JSON.parse(localStorage.getItem("user"));
 
@@ -334,7 +352,7 @@ function Products() {
                                                                     className="btn border border-secondary rounded-pill px-3 text-primary"
                                                                 >
                                                                     <i className="fa fa-shopping-bag me-2 text-primary"/>
-                                                                    Add to cart
+                                                                    Thêm vào giỏ
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -349,25 +367,19 @@ function Products() {
                                                      display: "flex",
                                                      justifyContent: "center"
                                                  }}>
-                                                <ul className="pagination">
-                                                    <li className="page-item">
-                                                        <button className="page-link" aria-label="Previous"
-                                                                onClick={() => prePage()} tabIndex={-1}
-                                                                disabled={page + 1 <= 1}>
-                                                            <span aria-hidden="true">&laquo;</span>
-                                                        </button>
-                                                    </li>
-                                                    <li className="page-item">
-                                                        <button className="page-link">{page + 1}/{totalPages}</button>
-                                                    </li>
-                                                    <li className="page-item">
-                                                        <button className="page-link" aria-label="Next"
-                                                                disabled={page + 1 >= totalPages}
-                                                                onClick={() => nextPage()}>
-                                                            <span aria-hidden="true">&raquo;</span>
-                                                        </button>
-                                                    </li>
-                                                </ul>
+                                                <div className="d-flex justify-content-center pagination">
+                                                    <button className="page-link" aria-label="Previous"
+                                                            onClick={() => prePage()} tabIndex={-1}
+                                                            disabled={page + 1 <= 1}>
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                    </button>
+                                                    <button className="page-link">{page + 1}/{totalPages}</button>
+                                                    <button className="page-link" aria-label="Next"
+                                                            disabled={page + 1 >= totalPages}
+                                                            onClick={() => nextPage()}>
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

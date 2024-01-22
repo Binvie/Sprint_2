@@ -1,39 +1,30 @@
 import React, {useEffect, useState} from 'react';
-import Header from "./home/Header";
-import {Link, useNavigate} from "react-router-dom";
-import {loginPic} from "../assets/images";
-import Footer from "./home/Footer";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {Table} from "react-bootstrap";
 import * as orderService from "../services/OrderService"
 import {useDispatch, useSelector} from "react-redux";
+import Header from "./home/Header";
+import Footer from "./home/Footer";
 
-function History() {
+function HistoryDetail() {
     const navigate = useNavigate()
-    const dispatch = useDispatch();
-    const cart = useSelector(state => state.cart.productArr);
-    const [existingUser, setExistingUser] = useState({})
-    const [userId, setUserId] = useState(0)
-    const [orderList, setOrderList] = useState([])
-    const getOrderList = async () => {
-        const user = JSON.parse(localStorage.getItem("user"));
-        console.log(user)
-        if (user) {
-            setExistingUser(user)
-            setUserId(user.id)
-            try {
-                const res = await orderService.getOrder(user.id)
-                console.log(res)
-                if (res) {
-                    setOrderList(res.data)
-                }
-            } catch (e) {
-                alert("Error " + e)
+    const [orderDetail, setOrderDetail] = useState([])
+    const {id} = useParams();
+    console.log(id)
+
+    const getOrderDetailList = async () => {
+        try {
+            const res = await orderService.getOrderDetail(id)
+            if (res) {
+                setOrderDetail(res.data)
+                console.log(res.data)
             }
+        } catch (e) {
+            alert("Error " + e)
         }
     }
-
     useEffect(() => {
-        getOrderList()
+        getOrderDetailList()
     }, []);
     return (
         <>
@@ -55,7 +46,7 @@ function History() {
             {/* Fruits Shop Start*/}
             <div className="container-fluid fruite py-5">
                 <div className="container py-5">
-                    <h1 className="mb-4 text-center text-warning">Lịch sử mua hàng</h1>
+                    <h1 className="mb-4 text-center text-warning">Chi tiết đơn hàng</h1>
                     <div className="row g-4">
                         <div className="col-lg-12">
                             <div className="container">
@@ -63,23 +54,31 @@ function History() {
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Tên</th>
-                                        <th>Ngày mua</th>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Số lượng</th>
+                                        <th>giá tiền</th>
                                         <th>Tổng tiền</th>
-                                        <th>Chi tiết đơn hàng</th>
+                                        <th>Trạng thái</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {orderList ? (
-                                        orderList.map((order, index) => {
+                                    {orderDetail ? (
+                                        orderDetail.map((order, index) => {
                                                 return (
                                                     <>
                                                         <tr>
                                                             <td>{index + 1}</td>
-                                                            <td>{order.account.name}</td>
-                                                            <td>{order.orderDate}</td>
-                                                            <td>{new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND'}).format(order.totalAmount)}</td>
-                                                            <td><Link class="btn btn-outline-primary" to={`/cart/detail/${order.id}`}>Chi tiết</Link></td>
+                                                            <td>{order.fruits.name}</td>
+                                                            <td>{order.quantity}</td>
+                                                            <td>{new Intl.NumberFormat('vi-VN', {
+                                                                style: 'currency',
+                                                                currency: 'VND'
+                                                            }).format(order.fruits.price)}</td>
+                                                            <td>{new Intl.NumberFormat('vi-VN', {
+                                                                style: 'currency',
+                                                                currency: 'VND'
+                                                            }).format(order.price)}</td>
+                                                            <td>Đã thanh toán</td>
                                                         </tr>
                                                     </>
                                                 )
@@ -89,6 +88,9 @@ function History() {
                                             hàng</h2></td>)}
                                     </tbody>
                                 </Table>
+                            </div>
+                            <div>
+                                <Link to={"/cart/detail"} type="button">Quay lại</Link>
                             </div>
                         </div>
                     </div>
@@ -100,5 +102,4 @@ function History() {
     );
 
 }
-
-export default History;
+export default HistoryDetail;

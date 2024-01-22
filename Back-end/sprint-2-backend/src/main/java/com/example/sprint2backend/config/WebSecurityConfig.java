@@ -48,7 +48,7 @@ public class WebSecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeRequests((requests)->requests
-                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/login" , "/products", "/detail/**").permitAll()
                         .requestMatchers("/**").hasAnyRole("ADMIN","USER")
                         .anyRequest().authenticated()
                 )

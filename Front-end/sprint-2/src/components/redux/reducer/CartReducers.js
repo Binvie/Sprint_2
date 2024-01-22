@@ -59,7 +59,6 @@ export const cartReducer = (state = initialState, action) => {
             }
         case REMOVE_ITEMS:
             const nextQuantity = state.totalItem - 1;
-            console.log(nextQuantity)
             return {
                 ...state,
                 totalItem: nextQuantity,

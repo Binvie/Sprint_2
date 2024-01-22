@@ -24,7 +24,6 @@ export const loginService = async (values) => {
 
 export const infoToken = () => {
     const jwtToken = localStorage.getItem("user")
-    console.log(jwtToken)
     if (jwtToken != null) {
         return jwtDecode(jwtToken);
     } else {
@@ -34,10 +33,20 @@ export const infoToken = () => {
 
 export const getUsernameFromJWT = async () => {
     const jwtToken = localStorage.getItem("user")
+    console.log(jwtToken.data.username)
+    console.log(jwtToken)
+    console.log(jwtToken.id)
     if (jwtToken) {
-        return jwtToken.data;
+        return jwtToken;
     } else return null;
 }
+
+// export const getIdFromJWT = async () => {
+//     const jwtToken = localStorage.getItem("user")
+//     if (jwtToken) {
+//         return jwtToken.data.id;
+//     } else return null;
+// }
 
 export const addJwtTokenToStorage = (jwtToken) => {
     localStorage.setItem("user", jwtToken)

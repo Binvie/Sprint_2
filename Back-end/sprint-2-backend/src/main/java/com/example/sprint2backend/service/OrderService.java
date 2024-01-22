@@ -104,4 +104,9 @@ public class OrderService implements IOrderService {
         }
         orderRepository.updateTotalMoney(total,orders.getId());
     }
+
+    @Override
+    public List<Orders> getOrdersByAccountId(int id) {
+        return orderRepository.getOrdersByAccountId(id);
+    }
 }

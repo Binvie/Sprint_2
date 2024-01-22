@@ -313,7 +313,7 @@ function Home() {
                                                                    onClick={() => handleAddProductToCart(products.idFruits)}
                                                                 >
                                                                     <i className="fa fa-shopping-bag text-primary me-2"/>
-                                                                    Add to cart
+                                                                    Thêm vào giỏ
                                                                 </a>
                                                             </small>
                                                         </div>

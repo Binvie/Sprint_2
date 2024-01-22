@@ -10,6 +10,7 @@ import Detail from "./components/detail/Detail";
 import Cart from "./components/detail/Cart";
 import History from "./components/History";
 import {PayPalScriptProvider} from "@paypal/react-paypal-js";
+import HistoryDetail from "./components/HistoryDetail";
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
                         <Route path={"/products"} element={<Products/>}/>
                         <Route path={"/detail/:id"} element={<Detail/>}/>
                         <Route path={"/cart/detail"} element={<History/>}/>
+                        <Route path={"/cart/detail/:id"} element={<HistoryDetail/>}/>
                     </Routes>
                 </BrowserRouter>
                 <ToastContainer/>

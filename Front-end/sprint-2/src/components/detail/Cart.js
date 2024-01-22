@@ -24,48 +24,33 @@ function Cart() {
     const cart = useSelector(state => state.cart.productArr);
     const totalItem = useSelector(state => state.cart.totalItem)
     const [checkout, setCheckout] = useState(false)
-    const [user, setUser] = useState({})
+    // const [user, setUser] = useState({})
     const [isRender, setIsRender] = useState(false)
-    const [userId, setUserId] = useState(0)
-    const handlePayment = async () => {
-        try {
-            const res = await confirmOrder(userId);
-            if (res.status === 200) {
-                toast("Bạn đã thanh toán thành công");
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Thanh toán thành công!',
-                    text: 'Cảm ơn bạn đã mua sắm!',
-                    confirmButtonText: 'OK',
-                    showCancelButton: false,
-                    showCloseButton: false,
-                });
-                setIsRender(!isRender);
-            }
-        } catch (e) {
-            console.log("lỗi thanh toán")
-        }
-    };
-    const getAccountById = async () => {
-        const existingUser = JSON.parse(localStorage.getItem("user"));
-        let usernameAccount = "";
-        if (existingUser) {
-            setUserId(existingUser.id)
-            usernameAccount = existingUser.username
-        }
-        try {
-            const res = await accountService.getAccountByUsernameService(usernameAccount)
-            setUser(res.data)
-        } catch (e) {
-            alert("Error")
+    const [count, setCount] = useState(1)
+    const [userId, setUserId] = useState()
+    const [username, setUsername] = useState("")
+    const [user, setUser] = useState({})
+    const infoUsername = async () => {
+        let res = await accountService.infoToken()
+        if (res) {
+            setUsername(res.sub)
+            let res1 = JSON.parse(localStorage.getItem("user"))
+            setUserId(res1.id)
+            console.log(res1.id)
         }
     }
 
+    useEffect(() => {
+        infoUsername()
+    }, []);
+
     const handleRemoveFromCart = async (productName, productId) => {
         try {
-            const res = await removeProductFromCart(userId, productId)
+            dispatch(removeProducts(userId, productId))
+            setCount(count + 1)
             toast("Xóa sản phẩm " + productName + " ra khỏi giỏ hàng!");
             getCartFromAPI()
+            // window.location.reload();
         } catch (e) {
             alert(e)
         }
@@ -89,9 +74,8 @@ function Cart() {
     const totalAmount = calculateTotalAmount();
 
     useEffect(() => {
-        getAccountById()
         dispatch(getCartFromAPI());
-    }, [totalItem, userId]);
+    }, [totalItem, userId, count]);
     return <>
         <div>
             <Header/>
@@ -188,6 +172,7 @@ function Cart() {
                                             }).format(item.price * item.quantity)}</td>
                                             <td>
                                                 <button className="btn btn-black btn-sm"
+                                                        type="button"
                                                         onClick={() =>
                                                             handleRemoveFromCart(item.name, item.fruitsId)}>
                                                     X
@@ -209,7 +194,7 @@ function Cart() {
                         <div className="row mb-5">
                             <div className="col-md-6">
                                 <Link className="btn btn-primary btn-sm btn-block" to="/products">
-                                    Continue <span> Shopping</span>
+                                    Tiếp tục mua hàng
                                 </Link>
                             </div>
                         </div>
@@ -274,7 +259,7 @@ function Cart() {
                                             {/*> Thanh toán*/}
                                             {/*</button>*/}
                                             <div className=" t-mb-0">
-                                                <Paypal propData1={totalAmount} proData2={cart}/>
+                                                <Paypal/>
                                             </div>
                                         </>
                                     ) : (

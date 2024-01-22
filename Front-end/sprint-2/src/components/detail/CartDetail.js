@@ -1,63 +1,24 @@
-import React, {useContext} from 'react';
-import {prod2} from "../../assets/images";
+import React, {useEffect, useState} from 'react';
+import Header from "./home/Header";
+import {Link, useNavigate} from "react-router-dom";
+import {loginPic} from "../assets/images";
+import Footer from "./home/Footer";
+import {Table} from "react-bootstrap";
+import * as orderService from "../services/OrderService"
+import {useDispatch, useSelector} from "react-redux";
+
 
 function CartDetail() {
-
+    const navigate = useNavigate()
+    const dispatch = useDispatch();
+    const cart = useSelector(state => state.cart.productArr);
+    const [existingUser, setExistingUser] = useState({})
+    const [userId, setUserId] = useState(0)
+    const [orderList, setOrderList] = useState([])
+    const [orderDetail, setOrderDetail] = useState([])
     return (
         <>
-            <h1>Total : </h1>
-            {/*{products.map((product, 1) => {*/}
-            {/*    */}
-            {/*})}*/}
-            <tr>
-                <td className="product-thumbnail">
-                    <img
-                        src={prod2}
-                        alt="Image"
-                        className="img-fluid"
-                    />
-                </td>
-                <td className="product-name">
-                    <h2 className="h5 text-black">Product 2</h2>
-                </td>
-                <td>$49.00</td>
-                <td>
-                    <div
-                        className="input-group mb-3 d-flex align-items-center quantity-container"
-                        style={{maxWidth: 120}}
-                    >
-                        <div className="input-group-prepend">
-                            <button
-                                className="btn btn-outline-black decrease"
-                                type="button"
-                            >
-                                −
-                            </button>
-                        </div>
-                        <input
-                            type="text"
-                            className="form-control text-center quantity-amount"
-                            placeholder=""
-                            aria-label="Example text with button addon"
-                            aria-describedby="button-addon1"
-                        />
-                        <div className="input-group-append">
-                            <button
-                                className="btn btn-outline-black increase"
-                                type="button"
-                            >
-                                +
-                            </button>
-                        </div>
-                    </div>
-                </td>
-                <td>$49.00</td>
-                <td>
-                    <button  className="btn btn-black btn-sm">
-                        X
-                    </button>
-                </td>
-            </tr>
+
         </>
     );
 }

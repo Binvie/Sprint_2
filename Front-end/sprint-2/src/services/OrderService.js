@@ -8,6 +8,21 @@ export const confirmOrder = async (userId) => {
         console.log("Lỗi tạo order")
     }
 };
+
+export const getOrder = async (userId) => {
+    console.log(userId)
+    try {
+        const res = await axios.get(`http://localhost:8080/api/order/${userId}`)
+        return res;
+    }catch (e){
+        console.log("Lỗi tạo order")
+    }
+};
+
+export const getOrderDetail = async (orderId) => {
+        const res = await axios.get(`http://localhost:8080/api/order/detail/${orderId}`)
+        return res;
+};
 //
 // const getOrderByUsername = async (page, size, orderCode) => {
 //     try {

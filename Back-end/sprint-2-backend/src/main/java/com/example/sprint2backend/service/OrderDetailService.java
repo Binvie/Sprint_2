@@ -33,4 +33,9 @@ public class OrderDetailService implements IOrderDetailService {
     public void remove(Integer id) {
 
     }
+
+    @Override
+    public List<OrderDetail> getOrdersDetailByOrderId(int id) {
+        return oderDetailRepository.getOrdersDetailByOrderId(id);
+    }
 }

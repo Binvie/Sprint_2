@@ -12,7 +12,7 @@ const getCartFromAPI = () => async (dispatch) => {
                 type: GET_CART_FROM_API,
                 payload: data,
             });
-            console.log(data)
+            console.log(data);
         } else {
             dispatch({
                 type: GET_CART_FROM_API,
@@ -69,7 +69,7 @@ const removeProducts = (userId, productId) => async (dispatch) => {
         dispatch({
             type: REMOVE_ITEMS,
         })
-        getCartFromAPI()
+        getCartFromAPI();
     } catch (err) {
     alert(err)
     }

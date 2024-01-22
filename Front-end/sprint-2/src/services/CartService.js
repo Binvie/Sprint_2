@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const BASE_API  = "http://localhost:8080/api/cart";
- const getCartDetailsByUserId  = async () => {
-     let userIds =JSON.parse(localStorage.getItem("user")).id
+const BASE_API = "http://localhost:8080/api/cart";
+const getCartDetailsByUserId = async () => {
+    let userIds = JSON.parse(localStorage.getItem("user")).id
     try {
         const response = await axios.get(`http://localhost:8080/api/cart/${userIds}`);
         return response.data;
@@ -36,4 +36,4 @@ const removeProductFromCart = async (userId, productId) => {
     }
 }
 
-export {getCartDetailsByUserId , addNewProductToCart, removeProductFromCart, minusProductFromCart}
+export {getCartDetailsByUserId, addNewProductToCart, removeProductFromCart, minusProductFromCart}

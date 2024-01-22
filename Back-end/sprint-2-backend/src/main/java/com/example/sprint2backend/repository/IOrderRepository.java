@@ -38,5 +38,6 @@ public interface IOrderRepository extends JpaRepository<Orders, Integer> {
     @Query(value = "update `orders` set payment_status = 1, total_amount = :total where id = :id", nativeQuery = true)
     void updateTotalMoney(@Param("total") double total,@Param("id") int id);
 
-    
+    @Query(value = "select * from orders where account_id = :id ", nativeQuery = true)
+    List<Orders> getOrdersByAccountId(@Param("id") int id);
 }

@@ -1,17 +1,17 @@
-import React, { useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {login1, prod1, prod2, prod3, prod5, prod6, prod7} from "../../assets/images";
 import Footer from "../home/Footer";
 import Header from "../home/Header";
 import "../backUpCss/shop.min.css"
-import {useNavigate, useParams} from "react-router-dom";
+import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
 import * as typeService from "../../services/FruitTypeService";
-import * as accountService from "../../services/AccountService";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Slider from "react-slick";
 import {toast} from "react-toastify";
 import {addToCart} from "../redux/actions/CartActions";
 import {useDispatch} from "react-redux";
+import {Carousel} from "react-bootstrap"
+import * as accountService from "../../services/AccountService";
 
 function Detail() {
     const {id} = useParams();
@@ -23,8 +23,42 @@ function Detail() {
     const [typeId, setTypeId] = useState("")
     const dispatch = useDispatch();
     const [existingUser, setExistingUser] = useState({})
-    const [userId, setUserId] = useState(0)
     const [quantity, setQuantity] = useState(1);
+    const flag = accountService.infoToken() != null
+
+    const [userId, setUserId] = useState()
+    const [username, setUsername] = useState("")
+    const infoUsername = async () => {
+        let res = await accountService.infoToken()
+        if (res) {
+            setUsername(res.sub)
+            let res1 = JSON.parse(localStorage.getItem("user"))
+            setUserId(res1.id)
+            setExistingUser(res1)
+            console.log(res1.id)
+        }
+    }
+
+    useEffect(() => {
+        infoUsername()
+    }, []);
+
+    const location = useLocation();
+    const handleAddProductToCart = async () => {
+        if (flag) {
+            console.log(username)
+            dispatch(addToCart(username, id, quantity));
+            toast.success("Thêm vào giỏ hàng thành công!");
+        } else {
+            navigate("/login")
+            toast.warn("Bạn phải đăng nhập để có thể mua hàng")
+        }
+    }
+
+    // Thiết lập scrollTop khi location thay đổi (chuyển trang)
+    React.useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
     const quantityMinus = () => {
         if (quantity > 1) {
             setQuantity(quantity - 1);
@@ -37,31 +71,15 @@ function Detail() {
         if (existingUser) {
             if (quantity <= 9) {
                 setQuantity(quantity + 1);
-                if (quantity === 9) {
-                    toast.info("Nếu muốn đặt số lượng lớn, vui lòng liên hệ QTV để được hỗ trợ!");
-                }
+                // if (quantity === 9) {
+                //     toast.info("Nếu muốn đặt số lượng lớn, vui lòng liên hệ QTV để được hỗ trợ!");
+                // }
             }
         } else {
             toast.success("Vui lòng đăng nhập!");
             navigate("/login");
         }
 
-    }
-
-    const handleAddProductToCart = async (productId) => {
-        const user = JSON.parse(localStorage.getItem("user"));
-        console.log(user)
-        const username = user.username
-        console.log(username)
-        if (user) {
-            setExistingUser(user)
-            setUserId(user.id)
-            dispatch(addToCart(userId, productId, quantity));
-            toast.success("Thêm vào giỏ hàng thành công!");
-        }else {
-            // navigate("/login")
-            toast.warn("Bạn phải đăng nhập để có thể mua hàng")
-        }
     }
 
     const backToLastPage = () => {
@@ -140,9 +158,12 @@ function Detail() {
                 <h1 className="text-center text-white display-6">Chi tiết sản phẩm</h1>
                 <ol className="breadcrumb justify-content-center mb-0">
                     <li className="breadcrumb-item">
-                        <a href="/">Trang chủ</a>
+                        <Link to={"/"}>Trang chủ</Link>
                     </li>
-                    <li className="breadcrumb-item active text-white">Shop Detail</li>
+                    <li className="breadcrumb-item">
+                        <Link to={"/products"}>Sản phẩm</Link>
+                    </li>
+                    <li className="breadcrumb-item active text-white">Chi tiết sản phẩm</li>
                 </ol>
             </div>
             {/* Single Page Header End */}
@@ -163,6 +184,30 @@ function Detail() {
                                         </a>
                                     </div>
                                 </div>
+                                {/*<div>*/}
+                                {/*    <Carousel>*/}
+                                {/*        <Carousel.Item>*/}
+                                {/*            <Carousel.Caption>*/}
+                                {/*                <h3>First slide label</h3>*/}
+                                {/*                <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>*/}
+                                {/*            </Carousel.Caption>*/}
+                                {/*        </Carousel.Item>*/}
+                                {/*        <Carousel.Item>*/}
+                                {/*            <Carousel.Caption>*/}
+                                {/*                <h3>Second slide label</h3>*/}
+                                {/*                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>*/}
+                                {/*            </Carousel.Caption>*/}
+                                {/*        </Carousel.Item>*/}
+                                {/*        <Carousel.Item>*/}
+                                {/*            <Carousel.Caption>*/}
+                                {/*                <h3>Third slide label</h3>*/}
+                                {/*                <p>*/}
+                                {/*                    Praesent commodo cursus magna, vel scelerisque nisl consectetur.*/}
+                                {/*                </p>*/}
+                                {/*            </Carousel.Caption>*/}
+                                {/*        </Carousel.Item>*/}
+                                {/*    </Carousel>*/}
+                                {/*</div>*/}
                                 <div className="col-lg-6">
                                     <h3 className="fw-bold mb-3">{fruits.fruitsName}</h3>
                                     {/*<p className="mb-3"> Loại sản phẩm: {typeList[fruits.typeId - 1].name} </p>*/}
@@ -194,7 +239,7 @@ function Detail() {
                                     </div>
                                     <button
                                         className="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary"
-                                        onClick={() => handleAddProductToCart(fruits.idfruits)}
+                                        onClick={handleAddProductToCart}
                                     >
                                         <i className="fa fa-shopping-bag me-2 text-primary"/> Add to
                                         cart
@@ -233,24 +278,24 @@ function Detail() {
                         <div className="col-lg-4 col-xl-3">
                             <div className="row g-4 fruite">
                                 <div className="col-lg-12">
-                                    <div className="mb-4">
-                                        <h4>Danh mục</h4>
-                                        {typeList.length !== 0 ? (
-                                            typeList.map(type => {
-                                                return (
-                                                    <>
-                                                        <ul className="list-unstyled fruite-categorie"
-                                                            key={type.id}>
-                                                            <li value={type.id} role="button"
-                                                                onClick={event => setTypeId(event.target.value)}>
-                                                                <i className={`${type.id === typeId ? 'text-warning' : 'text-primary'} fas fa-apple-alt me-2 `}/>{type.name}
-                                                            </li>
-                                                        </ul>
-                                                    </>
-                                                )
-                                            })
-                                        ) : (<p>Không có dữ liệu.</p>)}
-                                    </div>
+                                    {/*<div className="mb-4">*/}
+                                    {/*    <h4>Danh mục</h4>*/}
+                                    {/*    {typeList.length !== 0 ? (*/}
+                                    {/*        typeList.map(type => {*/}
+                                    {/*            return (*/}
+                                    {/*                <>*/}
+                                    {/*                    <ul className="list-unstyled fruite-categorie"*/}
+                                    {/*                        key={type.id}>*/}
+                                    {/*                        <li value={type.id} role="button"*/}
+                                    {/*                            onClick={event => setTypeId(event.target.value)}>*/}
+                                    {/*                            <i className={`${type.id === typeId ? 'text-warning' : 'text-primary'} fas fa-apple-alt me-2 `}/>{type.name}*/}
+                                    {/*                        </li>*/}
+                                    {/*                    </ul>*/}
+                                    {/*                </>*/}
+                                    {/*            )*/}
+                                    {/*        })*/}
+                                    {/*    ) : (<p>Không có dữ liệu.</p>)}*/}
+                                    {/*</div>*/}
                                 </div>
                                 <div className="col-lg-12">
                                     <div className="position-relative">
@@ -268,7 +313,7 @@ function Detail() {
                                             }}
                                         >
                                             <h3 className="text-warning fw-bold">
-                                                Fresh <br/> Fruits <br/> Banner
+                                                Fresh <br/> Fruits
                                             </h3>
                                         </div>
                                     </div>
